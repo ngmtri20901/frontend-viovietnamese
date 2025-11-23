@@ -1,11 +1,11 @@
 // This file will contain the CategoryList component. 
 
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Badge } from "@/shared/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import type { CategoryWithCount, GroupedCategory } from "@/lib/types/blog";
-import { categoryDisplayNames, getCategoryIcon, categoryBackgrounds } from "@/lib/utils/blogUtils";
+import type { CategoryWithCount, GroupedCategory } from "@/features/blog/types/blog";
+import { categoryDisplayNames, getCategoryIcon, categoryBackgrounds } from "@/features/blog/utils/blogUtils";
 
 interface CategoryListProps {
   groupedCategories: GroupedCategory[];

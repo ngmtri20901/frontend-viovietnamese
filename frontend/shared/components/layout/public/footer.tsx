@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { AppLogo } from "@/components/app-logo"
+import { AppLogo } from "@/shared/components/marketing/others/app-logo"
 
 export function Footer() {
   return (

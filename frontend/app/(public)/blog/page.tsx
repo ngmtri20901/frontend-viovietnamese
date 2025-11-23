@@ -1,15 +1,15 @@
-import { createClient as createSupabaseClient } from "@/lib/supabase/server";
-import { client } from "@/lib/sanity/client";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { createClient as createSupabaseClient } from "@/shared/lib/supabase/server";
+import { client } from "@/shared/lib/sanity/client";
+import { Button } from "@/shared/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import Link from "next/link";
 import type { Metadata } from "next";
 import styles from './blog.module.css';
-import type { BlogPost, CategoryWithCount, GroupedCategory } from "@/lib/types/blog";
-import { categoryGroups } from "@/lib/utils/blogUtils";
-import { CATEGORIES_QUERY, ALL_POSTS_QUERY } from "@/lib/sanity/queries";
-import { PostCard } from "@/components/blog/PostCard";
-import { CategoryList } from "@/components/blog/CategoryList";
+import type { BlogPost, CategoryWithCount, GroupedCategory } from "@/features/blog/types/blog";
+import { categoryGroups } from "@/features/blog/utils/blogUtils";
+import { CATEGORIES_QUERY, ALL_POSTS_QUERY } from "@/shared/lib/sanity/queries";
+import { PostCard } from "@/features/blog/components/PostCard";
+import { CategoryList } from "@/features/blog/components/CategoryList";
 
 export const metadata: Metadata = {
   title: "Blog | Learn Vietnamese",
@@ -39,17 +39,6 @@ export default async function BlogPage() {
             Explore our collection of articles, guides, and resources to help you master Vietnamese.
           </p>
         </div>
-        {session && (
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard">
-              <Button variant="default" size="sm">Dashboard</Button>
-            </Link>
-            <Avatar>
-              <AvatarImage src={session.user.user_metadata?.avatar_url || "https://via.placeholder.com/50"} />
-              <AvatarFallback>{session.user.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
-            </Avatar>
-          </div>
-        )}
       </div>
 
       {/* Main two-column layout */}

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { AppLogo } from "@/components/app-logo"
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client"
+import { Button } from "@/shared/components/ui/button"
+import { AppLogo } from "@/shared/components/marketing/others/app-logo"
+import { createClient, isSupabaseConfigured } from "@/shared/lib/supabase/client"
 
 const navLinks = [
   { name: "Home", href: "/" },

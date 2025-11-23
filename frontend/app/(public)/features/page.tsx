@@ -1,6 +1,6 @@
 import { Check } from "lucide-react"
-import { Navbar } from "@/components/layout/navbar"
-import { Footer } from "@/components/layout/footer"
+import { Navbar } from "@/shared/components/layout/public/navbar"
+import { Footer } from "@/shared/components/layout/public/footer"
 
 // ISR Configuration - Static generation with no revalidation
 export const revalidate = false
@@ -9,7 +9,6 @@ export const dynamic = 'force-static'
 export default function FeaturesPage() {
   return (
     <>
-      <Navbar />
       <div className="bg-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -157,7 +156,6 @@ export default function FeaturesPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </>
 
   )

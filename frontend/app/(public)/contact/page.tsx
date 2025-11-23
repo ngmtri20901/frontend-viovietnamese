@@ -23,7 +23,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { FAQSection } from "@/shared/components/marketing/contact/faq-sections";
+import { FAQSection } from "@/shared/components/marketing/others/faq-sections";
 import { Navbar } from "@/shared/components/layout/public/navbar";
 import { Footer } from "@/shared/components/layout/public/footer";
 import {
@@ -283,7 +283,6 @@ export default function FeedbackPage() {
 
   return (
     <>
-      <Navbar />
       <GoogleReCaptchaProvider reCaptchaKey={siteKey}>
         <div className="min-h-screen bg-white p-4 md:p-8">
           <div className="max-w-7xl mx-auto">
@@ -365,7 +364,6 @@ export default function FeedbackPage() {
           </div>
         </main>
       </GoogleReCaptchaProvider>
-      <Footer />
     </>
   );
 }

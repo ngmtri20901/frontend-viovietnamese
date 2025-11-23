@@ -1,26 +1,26 @@
-import { client } from "@/lib/sanity/client";
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { client } from "@/shared/lib/sanity/client";
+import { Card } from "@/shared/components/ui/card";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Separator } from "@/shared/components/ui/separator";
+import { cn } from "@/shared/utils/cn";
 import {
   Info,
   AlertCircle,
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import type { BlogPost, SanityAuthor } from "@/types/blog";
+import type { BlogPost, SanityAuthor } from "@/features/blog/types/blog";
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import { ShareButtons } from "./ShareButtons";
+import { ShareButtons } from "@/features/blog/components/ShareButtons";
 import Link from "next/link";
-import BlogImage from "@/components/blog/BlogImage";
-import { AuthorCard } from "@/components/blog/AuthorCard";
-import { TableOfContents } from "./TableOfContents";
-import { DownloadPDFButton } from "./DownloadPDFButton"; 
-import { CommentSection } from "@/components/blog/CommentSection";
+import BlogImage from "@/features/blog/components/BlogImage";
+import { AuthorCard } from "@/features/blog/components/AuthorCard";
+import { TableOfContents } from "@/features/blog/components/TableOfContents";
+import { DownloadPDFButton } from "@/features/blog/components/DownloadPDFButton"; 
+import { CommentSection } from "@/features/blog/components/CommentSection";
 
 // Helper function to get text content from a node
 const getChildrenText = (node: any) => {

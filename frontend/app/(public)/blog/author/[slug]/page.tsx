@@ -1,11 +1,11 @@
-import { client, urlFor } from "@/lib/sanity/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { client, urlFor } from "@/shared/lib/sanity/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Card } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
 import { PortableText } from "@portabletext/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import BlogImage from "@/components/blog/BlogImage";
+import BlogImage from "@/features/blog/components/BlogImage";
 import { notFound } from "next/navigation";
 
 const POSTS_PER_PAGE = 5;

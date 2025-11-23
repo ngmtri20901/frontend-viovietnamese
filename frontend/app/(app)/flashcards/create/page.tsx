@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/shared/lib/supabase/server'
-import CreateFlashcardForm from '@/features/flashcards/components/create/CreateFlashcardForm'
+import FlashcardsPageClient from '@/features/flashcards/components/create/FlashcardsPageClient'
 
 export default async function CreateFlashcardPage() {
   const supabase = await createClient()
@@ -35,7 +35,7 @@ export default async function CreateFlashcardPage() {
         </div>
       </div>
     }>
-      <CreateFlashcardForm userId={user.id} />
+      <FlashcardsPageClient userId={user.id} />
     </Suspense>
   )
 }

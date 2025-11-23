@@ -1,24 +1,22 @@
-// ...existing code...
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { Sparkles, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { cn } from "@/shared/utils/cn";
-import { Badge } from "@/shared/components/ui/badge"; // added badge import
-
-interface VocabularyItem {
-  vi: string;
-  en: string;
-  pos?: string; // added part-of-speech
-}
+import { Badge } from "@/shared/components/ui/badge";
+import { VocabHoverPopup, EnrichedVocabItem } from "./VocabHoverPopup";
 
 interface KeyVocabularyProps {
-  vocabulary: VocabularyItem[];
+  vocabulary: EnrichedVocabItem[];
+  topicId: number;
+  lessonId: number;
   maxHeight?: string;
 }
 
 export default function KeyVocabulary({
   vocabulary,
+  topicId,
+  lessonId,
   maxHeight = "200px",
 }: KeyVocabularyProps) {
   if (!vocabulary || vocabulary.length === 0) {
@@ -115,7 +113,7 @@ export default function KeyVocabulary({
                   key={index}
                   className="grid grid-cols-2 gap-4 py-3 first:pt-0 hover:bg-indigo-50/50 transition-colors duration-150 rounded-md px-2 -mx-2"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 relative">
                     <Badge
                       className={cn(
                         "rounded-md px-2 py-0.5 text-xs pointer-events-none transition-none",
@@ -124,7 +122,21 @@ export default function KeyVocabulary({
                     >
                       {badge.label}
                     </Badge>
-                    <p className="font-semibold text-indigo-700 leading-relaxed">{item.vi}</p>
+                    <div className="flex items-center gap-2 relative flex-1">
+                      <VocabHoverPopup
+                        vocabulary={item}
+                        topicId={topicId}
+                        lessonId={lessonId}
+                      >
+                        <span className="font-semibold text-indigo-700 leading-relaxed">
+                          {item.vi}
+                        </span>
+                      </VocabHoverPopup>
+                      {/* Persistent saved indicator */}
+                      {item.isSaved && (
+                        <Star className="h-3 w-3 text-amber-500 fill-amber-500 shrink-0" />
+                      )}
+                    </div>
                   </div>
                   <p className="text-slate-600 justify-self-end text-right leading-relaxed">{item.en}</p>
                 </div>

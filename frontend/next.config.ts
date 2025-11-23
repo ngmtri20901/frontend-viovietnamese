@@ -39,9 +39,6 @@ const nextConfig = {
 
   // 📦 Increase Server Actions body size limit to 3MB for image uploads
   // Try both root level and experimental for compatibility
-  serverActions: {
-    bodySizeLimit: '3mb',
-  },
   
   experimental: {
     serverActions: {

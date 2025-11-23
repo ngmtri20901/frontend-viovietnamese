@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { UserRoundPen, CalendarDays, ImageOff } from 'lucide-react';
-import { imageUrlBuilder } from "@/lib/sanity/imageUrlBuilder";
-import type { BlogPost } from "@/lib/types/blog";
+import { imageUrlBuilder } from "@/shared/lib/sanity/imageUrlBuilder";
+import type { BlogPost } from "@/features/blog/types/blog";
 
 interface PostCardProps {
   post: BlogPost;

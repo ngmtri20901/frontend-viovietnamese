@@ -1,8 +1,8 @@
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card } from "@/shared/components/ui/card"
+import { Button } from "@/shared/components/ui/button"
 import { Check } from "lucide-react"
-import { Navbar } from "@/components/layout/navbar"
-import { Footer } from "@/components/layout/footer"
+import { Navbar } from "@/shared/components/layout/public/navbar"
+import { Footer } from "@/shared/components/layout/public/footer"
 
 // ISR Configuration - Static generation with no revalidation
 export const revalidate = false
@@ -35,7 +35,6 @@ export default function PricingPage() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-white py-16 px-4">
         <div className="max-w-7xl mx-auto text-center">
         <h1 className="text-4xl font-bold mb-4">Pricing</h1>
@@ -98,7 +97,6 @@ export default function PricingPage() {
         </div>
       </div>
       </div>
-      <Footer />
       </>
   )
 }

@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, FormEvent, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import {
   Pagination,
   PaginationContent,
@@ -14,10 +14,10 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/shared/components/ui/pagination"
 import { ThumbsUp, MessageSquare, Edit3, Trash2, SendHorizonal } from 'lucide-react';
-import { type CommentType, type SanityAuthor } from '@/types/blog'; // Assuming CommentType is in types/blog now
-import { useToast } from "@/components/ui/use-toast"
+import { type CommentType, type SanityAuthor } from '@/features/blog/types/blog'; // Assuming CommentType is in types/blog now
+import { useToast } from "@/shared/hooks/use-toast"
 import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';

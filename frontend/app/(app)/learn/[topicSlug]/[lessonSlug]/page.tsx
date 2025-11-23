@@ -10,7 +10,8 @@ import GrammarCarousel from "@/features/learn/components/lesson/GrammarCarousel"
 import ExampleSentences from "@/features/learn/components/lesson/ExampleSentences";
 import KeyVocabulary from "@/features/learn/components/lesson/KeyVocabulary";
 import { notFound } from "next/navigation";
-import { StartExerciseButton } from "./StartExerciseButton"; 
+import { StartExerciseButton } from "./StartExerciseButton";
+import { generateVocabKey } from "@/features/flashcards/utils/vocab-key"; 
 
 
 
@@ -262,6 +263,44 @@ export default async function LessonPage({
 
   // Xác định có bị chặn nhúng (Gemini) hay không
   const storyIsBlocked = mainBlock?.type === "storybook" && isBlockedByGemini(mainMediaUrl ?? undefined);
+
+  // Step 1: Quick check if user has ANY saved vocab for this lesson
+  let savedVocabKeys: Set<string> = new Set();
+  if (user) {
+    const { data: savedCheck } = await (supabase as any)
+      .from('saved_flashcards')
+      .select('flashcard_id')
+      .eq('UserID', user.id)
+      .eq('topic_id', topic.topic_id)
+      .eq('lesson_id', lesson.id)
+      .eq('flashcard_type', 'CUSTOM');
+    
+    if (savedCheck && savedCheck.length > 0) {
+      savedVocabKeys = new Set(savedCheck.map((s: any) => s.flashcard_id));
+    }
+  }
+
+  // Step 2: Process vocabulary materials with saved state
+  const vocabularyMaterials = sidebars
+    .filter((m) => m.type === "vocabulary")
+    .flatMap((m: any) => {
+      if (!Array.isArray(m.data?.items)) return [];
+      
+      return m.data.items.map((item: any) => {
+        const vocabKey = generateVocabKey(topic.topic_id, lesson.id, item.vi);
+        const isSaved = savedVocabKeys.has(vocabKey);
+        
+        return {
+          vi: item.vi,
+          en: item.en,
+          ipa: item.ipa,
+          audio: item.audio,
+          pos: item.pos,
+          vocabKey,
+          isSaved
+        };
+      });
+    });
 
   return (
     <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -549,14 +588,13 @@ export default async function LessonPage({
 
 
           {/* Vocabulary */}
-          {(() => {
-            const vocabularyMaterials = sidebarPrepared.filter((m) => m.type === "vocabulary");
-            const allVocabulary = vocabularyMaterials.flatMap((m: any) => m.data?.items ?? []);
-            
-            return allVocabulary.length > 0 ? (
-              <KeyVocabulary vocabulary={allVocabulary} />
-            ) : null;
-          })()}
+          {vocabularyMaterials.length > 0 ? (
+            <KeyVocabulary 
+              vocabulary={vocabularyMaterials} 
+              topicId={topic.topic_id}
+              lessonId={lesson.id}
+            />
+          ) : null}
 
           {/* Examples */}
           {(() => {

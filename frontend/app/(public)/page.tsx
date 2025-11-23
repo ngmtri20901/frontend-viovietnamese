@@ -1,14 +1,14 @@
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@/shared/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Hero } from "./(static)/(home)/components/Hero"
-import { MethodsSection } from "./(static)/(home)/components/MethodsSection"
-import { Feature } from "./(static)/(home)/components/Feature"
-import Gamification from "./(static)/(home)/components/Gamification"
-import BlogSection from "./(static)/(home)/components/BlogSection"
-import PricingSection from "./(static)/(home)/components/PricingSection"
-import { CTASection } from "./(static)/(home)/components/CTASection"
-import { Footer } from "@/components/layout/footer"
-import { Navbar } from "@/components/layout/navbar"
+import { Hero } from "@/shared/components/marketing/landing/Hero"
+import { MethodsSection } from "@/shared/components/marketing/landing/MethodsSection"
+import { Feature } from "@/shared/components/marketing/landing/Feature"
+import Gamification from "@/shared/components/marketing/landing/Gamification"
+import BlogSection from "@/shared/components/marketing/landing/BlogSection"
+import PricingSection from "@/shared/components/marketing/landing/PricingSection"
+import { CTASection } from "@/shared/components/marketing/landing/CTASection"
+import { Footer } from "@/shared/components/layout/public/footer"
+import { Navbar } from "@/shared/components/layout/public/navbar"
 
 export default async function Home() {
   // Check if user is authenticated
@@ -17,14 +17,13 @@ export default async function Home() {
     data: { session },
   } = await supabase.auth.getSession()
 
-  // If user is logged in, redirect to dashboard
+  // If user is logged in, redirect to learn page
   if (session) {
-    redirect("/dashboard")
+    redirect("/learn")
   }
 
   return (
     <>
-      <Navbar />
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Hero />
@@ -36,7 +35,6 @@ export default async function Home() {
           <CTASection heading="Ready to get started?" description="Sign up now and start learning Vietnamese today!" />
         </div>
       </div>
-      <Footer />
     </>
   )
 }

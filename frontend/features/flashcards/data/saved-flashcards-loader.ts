@@ -5,6 +5,7 @@
 
 import { createClient } from '@/shared/lib/supabase/server'
 import { checkSyncStatus } from '@/features/flashcards/services/flashcardSyncService'
+import { isValidVocabKey } from '@/features/flashcards/utils/vocab-key'
 
 interface SavedFlashcard {
   id: string
@@ -33,10 +34,14 @@ interface AppFlashcardDetail {
 
 interface CustomFlashcardDetail {
   id: string
+  vocab_key?: string | null
   vietnamese_text: string
   english_text: string
   image_url?: string | null
   topic?: string | null
+  ipa_pronunciation?: string | null
+  audio_url?: string | null
+  source_type?: string | null
 }
 
 export interface SavedFlashcardDetails {
@@ -55,11 +60,13 @@ export interface SavedFlashcardDetails {
   english?: string[]
   image_url?: string
   word_type?: string
-  audio_url?: string
+  audio_url?: string | null
   pronunciation?: string
   // Custom flashcard data
   vietnamese_text?: string
   english_text?: string
+  ipa_pronunciation?: string | null
+  source_type?: string | null
 }
 
 interface FlashcardTopic {
@@ -130,7 +137,7 @@ async function getAppFlashcardDetails(flashcardIds: string[]): Promise<AppFlashc
 }
 
 /**
- * Fetch custom flashcard details from Supabase
+ * Fetch custom flashcard details from Supabase by UUID
  */
 async function getCustomFlashcardDetails(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -141,19 +148,48 @@ async function getCustomFlashcardDetails(
 
   try {
     // Build query step by step to avoid TypeScript issues
-    let query = supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabaseAny = supabase as any
+    const { data, error } = await supabaseAny
       .from('custom_flashcards')
-      .select('id, vietnamese_text, english_text, image_url, topic')
-
-    // @ts-expect-error - Supabase type inference issue with chained filters
-    query = query.eq('user_id', userId).eq('status', 'ACTIVE').in('id', flashcardIds)
-
-    const { data, error } = await query
+      .select('id, vocab_key, vietnamese_text, english_text, image_url, topic, ipa_pronunciation, audio_url, source_type')
+      .eq('user_id', userId)
+      .eq('status', 'ACTIVE')
+      .in('id', flashcardIds)
 
     if (error) throw error
     return data || []
   } catch (error) {
-    console.error('❌ [Server] Error fetching custom flashcard details:', error)
+    console.error('❌ [Server] Error fetching custom flashcard details by ID:', error)
+    return []
+  }
+}
+
+/**
+ * Fetch custom flashcard details from Supabase by vocab_key
+ */
+async function getCustomFlashcardDetailsByVocabKey(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  vocabKeys: string[]
+): Promise<CustomFlashcardDetail[]> {
+  if (vocabKeys.length === 0) return []
+
+  try {
+    // Build query step by step to avoid TypeScript issues
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabaseAny = supabase as any
+    const { data, error } = await supabaseAny
+      .from('custom_flashcards')
+      .select('id, vocab_key, vietnamese_text, english_text, image_url, topic, ipa_pronunciation, audio_url, source_type')
+      .eq('user_id', userId)
+      .eq('status', 'ACTIVE')
+      .in('vocab_key', vocabKeys)
+
+    if (error) throw error
+    return data || []
+  } catch (error) {
+    console.error('❌ [Server] Error fetching custom flashcard details by vocab_key:', error)
     return []
   }
 }
@@ -166,19 +202,24 @@ async function getUserStats(
   userId: string
 ): Promise<UserStats> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabaseAny = supabase as any
+    
     // Fetch flashcard counts
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAny
       .from('saved_flashcards')
       .select('flashcard_type')
       .eq('UserID', userId)
 
     if (error) throw error
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const appFlashcards = (data || []).filter((card: any) => card.flashcard_type === 'APP').length
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const customFlashcards = (data || []).filter((card: any) => card.flashcard_type === 'CUSTOM').length
 
     // Fetch subscription type from user_profiles
-    const { data: profileData, error: profileError } = await supabase
+    const { data: profileData, error: profileError } = await supabaseAny
       .from('user_profiles')
       .select('subscription_type')
       .eq('id', userId)
@@ -217,12 +258,14 @@ async function getTopics(
 
     // Get unique topics from custom_flashcards for this user
     // Note: custom_flashcards uses 'user_id' (lowercase), not 'UserID'
-    const { data, error } = await (supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabaseAny = supabase as any
+    const { data, error } = await supabaseAny
       .from('custom_flashcards')
       .select('topic')
       .eq('user_id', userId)
       .eq('status', 'ACTIVE')
-      .not('topic', 'is', null) as any)
+      .not('topic', 'is', null)
 
     if (error) {
       console.error('❌ [Server] Supabase error fetching topics:', error)
@@ -237,10 +280,11 @@ async function getTopics(
     }
 
     // Extract unique topics and format them
-    const uniqueTopics = [...new Set(data.map((item: any) => item.topic).filter(Boolean))]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const uniqueTopics = [...new Set(data.map((item: any) => item.topic).filter(Boolean))] as string[]
     console.log('✅ [Server] Unique topics extracted:', uniqueTopics)
 
-    return uniqueTopics.map((topic, index) => ({
+    return uniqueTopics.map((topic: string, index: number) => ({
       id: topic,
       name: topic,
       description: null,
@@ -262,11 +306,14 @@ async function getSavedFlashcardsWithDetails(
 ): Promise<SavedFlashcardDetails[]> {
   try {
     // Step 1: Get all saved flashcards from Supabase
-    const { data: savedCards, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabaseAny = supabase as any
+    const { data: savedCards, error } = await supabaseAny
       .from('saved_flashcards')
       .select('*')
       .eq('UserID', userId)
-      .order('saved_at', { ascending: false })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .order('saved_at', { ascending: false } as any)
       .limit(100) // Initial load limit
 
     if (error) throw error
@@ -279,18 +326,41 @@ async function getSavedFlashcardsWithDetails(
       .filter((card: SavedFlashcard) => card.flashcard_type === 'APP')
       .map((card: SavedFlashcard) => card.flashcard_id)
 
-    const customFlashcardIds = savedCards
+    // Handle CUSTOM flashcards: support both vocab_key format and old custom_{uuid} format
+    const customFlashcardIds: string[] = []
+    const customVocabKeys: string[] = []
+    
+    savedCards
       .filter((card: SavedFlashcard) => card.flashcard_type === 'CUSTOM')
-      .map((card: SavedFlashcard) => card.flashcard_id.replace('custom_', ''))
+      .forEach((card: SavedFlashcard) => {
+        const flashcardId = card.flashcard_id
+        
+        // Check if it's a vocab_key format (t{id}-l{id}-{slug})
+        if (isValidVocabKey(flashcardId)) {
+          customVocabKeys.push(flashcardId)
+        } else {
+          // Old format: custom_{uuid} - extract UUID
+          const uuid = flashcardId.replace('custom_', '')
+          if (uuid) {
+            customFlashcardIds.push(uuid)
+          }
+        }
+      })
 
     console.log('🔍 [Server] APP flashcard IDs:', appFlashcardIds.length)
-    console.log('🔍 [Server] CUSTOM flashcard IDs:', customFlashcardIds.length)
+    console.log('🔍 [Server] CUSTOM flashcard IDs (UUID):', customFlashcardIds.length)
+    console.log('🔍 [Server] CUSTOM flashcard IDs (vocab_key):', customVocabKeys.length)
 
     // Step 3: Fetch details in parallel
-    const [appFlashcardDetails, customFlashcardDetails] = await Promise.all([
+    // For vocab_key format, query by vocab_key; for UUID format, query by id
+    const [appFlashcardDetails, customFlashcardDetailsById, customFlashcardDetailsByVocabKey] = await Promise.all([
       getAppFlashcardDetails(appFlashcardIds),
-      getCustomFlashcardDetails(supabase, userId, customFlashcardIds),
+      customFlashcardIds.length > 0 ? getCustomFlashcardDetails(supabase, userId, customFlashcardIds) : Promise.resolve([]),
+      customVocabKeys.length > 0 ? getCustomFlashcardDetailsByVocabKey(supabase, userId, customVocabKeys) : Promise.resolve([]),
     ])
+    
+    // Combine both custom flashcard details
+    const customFlashcardDetails = [...customFlashcardDetailsById, ...customFlashcardDetailsByVocabKey]
 
     // Step 4: Merge saved flashcards with their details
     const savedFlashcardsWithDetails: SavedFlashcardDetails[] = savedCards.map((savedCard: SavedFlashcard) => {
@@ -309,9 +379,18 @@ async function getSavedFlashcardsWithDetails(
           pronunciation: detail?.pronunciation || undefined,
         }
       } else {
-        // CUSTOM flashcard
-        const cleanCustomId = savedCard.flashcard_id.replace('custom_', '')
-        const customDetail = customFlashcardDetails.find(d => d.id === cleanCustomId)
+        // CUSTOM flashcard - handle both vocab_key and UUID formats
+        const flashcardId = savedCard.flashcard_id
+        let customDetail: CustomFlashcardDetail | undefined
+        
+        if (isValidVocabKey(flashcardId)) {
+          // Lookup by vocab_key
+          customDetail = customFlashcardDetails.find(d => d.vocab_key === flashcardId)
+        } else {
+          // Old format: lookup by UUID (remove 'custom_' prefix)
+          const cleanCustomId = flashcardId.replace('custom_', '')
+          customDetail = customFlashcardDetails.find(d => d.id === cleanCustomId)
+        }
 
         // Handle image URLs for custom flashcards
         let imageUrl = '/placeholder.svg'
@@ -329,12 +408,18 @@ async function getSavedFlashcardsWithDetails(
           }
         }
 
+        // Generate fallback ID for display
+        const fallbackId = customDetail?.id || flashcardId.slice(-4)
+
         return {
           ...savedCard,
-          vietnamese_text: customDetail?.vietnamese_text || `Custom Card ${cleanCustomId.slice(-4)}`,
+          vietnamese_text: customDetail?.vietnamese_text || `Custom Card ${fallbackId}`,
           english_text: customDetail?.english_text || 'No translation available',
           image_url: imageUrl,
           topic: customDetail?.topic || savedCard.topic,
+          ipa_pronunciation: customDetail?.ipa_pronunciation || null,
+          source_type: customDetail?.source_type || 'user',
+          audio_url: customDetail?.audio_url || null,
         }
       }
     })

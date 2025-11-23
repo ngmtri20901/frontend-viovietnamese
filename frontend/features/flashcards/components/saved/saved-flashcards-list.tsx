@@ -17,6 +17,7 @@ import { formatDistanceToNow } from "date-fns"
 import { audioManager } from "@/shared/utils/audio"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
+import { createClient } from "@/shared/lib/supabase/client"
 
 interface SavedFlashcard {
   id: string
@@ -39,6 +40,9 @@ interface SavedFlashcard {
   // Custom flashcard data
   vietnamese_text?: string
   english_text?: string
+  ipa_pronunciation?: string | null
+  source_type?: string | null
+  audio_url?: string | null
 }
 
 interface SavedFlashcardsListProps {
@@ -110,6 +114,29 @@ function SavedFlashcardsListComponent({
           toast.info('No audio available for this flashcard')
         }
       } else { // CUSTOM flashcard
+        // Check if this is a lesson-sourced flashcard with existing audio
+        if (flashcard.source_type === 'lesson' && flashcard.audio_url) {
+          // Use Supabase Storage audio directly
+          const supabase = createClient()
+          const { data } = supabase.storage
+            .from('lesson-materials')
+            .getPublicUrl(flashcard.audio_url)
+          
+          if (data?.publicUrl) {
+            const audio = new Audio(data.publicUrl)
+            await audio.play()
+            audio.onended = () => {
+              setPlayingAudio(null)
+            }
+            audio.onerror = () => {
+              setPlayingAudio(null)
+              toast.error('Failed to play audio')
+            }
+            return
+          }
+        }
+        
+        // Fallback to TTS for user-created flashcards or if lesson audio is missing
         await playCustomFlashcardAudio(flashcard.id, vietnamese)
       }
     } catch (error) {
@@ -549,9 +576,12 @@ function SavedFlashcardsListComponent({
                         <h3 className="font-semibold text-gray-900 truncate">
                           {vietnamese}
                         </h3>
-                        {/* IPA for APP flashcards */}
+                        {/* IPA for APP and CUSTOM flashcards */}
                         {flashcard.flashcard_type === 'APP' && flashcard.pronunciation && (
                           <p className="text-xs text-gray-500 font-mono mt-0.5 truncate">/{flashcard.pronunciation}/</p>
+                        )}
+                        {flashcard.flashcard_type === 'CUSTOM' && flashcard.ipa_pronunciation && (
+                          <p className="text-xs text-gray-500 font-mono mt-0.5 truncate">/{flashcard.ipa_pronunciation}/</p>
                         )}
                       </div>
                       <Button
@@ -780,6 +810,9 @@ function SavedFlashcardsListComponent({
                             </h3>
                             {flashcard.flashcard_type === 'APP' && flashcard.pronunciation && (
                               <p className="text-xs text-gray-500 font-mono mt-0.5 truncate">/{flashcard.pronunciation}/</p>
+                            )}
+                            {flashcard.flashcard_type === 'CUSTOM' && flashcard.ipa_pronunciation && (
+                              <p className="text-xs text-gray-500 font-mono mt-0.5 truncate">/{flashcard.ipa_pronunciation}/</p>
                             )}
                           </div>
                           <Button

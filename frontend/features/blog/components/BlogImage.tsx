@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { client, urlFor } from '@/lib/sanity/client';
+import { client, urlFor } from '@/shared/lib/sanity/client';
 import { useNextSanityImage } from 'next-sanity-image';
 
 interface BlogImageProps {

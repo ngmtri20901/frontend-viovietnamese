@@ -1,0 +1,3 @@
+module.exports=[825872,a=>{"use strict";a.s(["DataStreamProvider",()=>e,"useDataStream",()=>f]);var b=a.i(187924),c=a.i(572131);let d=(0,c.createContext)(null);function e({children:a}){let[e,f]=(0,c.useState)([]),g=(0,c.useMemo)(()=>({dataStream:e,setDataStream:f}),[e]);return(0,b.jsx)(d.Provider,{value:g,children:a})}function f(){let a=(0,c.useContext)(d);if(!a)throw Error("useDataStream must be used within a DataStreamProvider");return a}}];
+
+//# sourceMappingURL=features_ai_chat_components_core_data-stream-provider_tsx_5629f438._.js.map

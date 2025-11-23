@@ -60,7 +60,8 @@ export async function createFlashcard(
       image_url: input.image_url || null,
       topic: input.topic?.trim() || null,
       notes: input.notes || null,
-      status: 'ACTIVE' as const
+      status: 'ACTIVE' as const,
+      source_type: 'user' as const
     }
 
     // Insert flashcard into database

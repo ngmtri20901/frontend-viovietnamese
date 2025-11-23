@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { loadSavedFlashcardsData } from '@/features/flashcards/data/saved-flashcards-loader'
 import SavedFlashcardsContainer from '@/features/flashcards/components/saved/SavedFlashcardsContainer'
-
+export const dynamic = 'force-dynamic'
 export default async function SavedFlashcardsPage() {
   // Fetch data on the server
   const data = await loadSavedFlashcardsData()

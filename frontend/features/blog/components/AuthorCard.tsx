@@ -1,8 +1,8 @@
 'use client';
 
-import { urlFor } from '@/lib/sanity/client';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
+import { urlFor } from '@/shared/lib/sanity/client';
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Card } from "@/shared/components/ui/card";
 import { PortableText } from "@portabletext/react";
 import Link from 'next/link';
 

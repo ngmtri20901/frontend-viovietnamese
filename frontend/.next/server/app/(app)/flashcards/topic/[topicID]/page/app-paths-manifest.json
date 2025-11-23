@@ -1,0 +1,3 @@
+{
+  "/(app)/flashcards/topic/[topicID]/page": "app/(app)/flashcards/topic/[topicID]/page.js"
+}

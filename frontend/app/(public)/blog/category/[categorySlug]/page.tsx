@@ -1,15 +1,15 @@
-import { createClient as createSupabaseClient } from "@/lib/supabase/server";
-import { client } from "@/lib/sanity/client";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { createClient as createSupabaseClient } from "@/shared/lib/supabase/server";
+import { client } from "@/shared/lib/sanity/client";
+import { Button } from "@/shared/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import Link from "next/link";
 import type { Metadata, ResolvingMetadata } from "next";
 import styles from '../../blog.module.css';
-import type { BlogPost, CategoryWithCount, GroupedCategory, BlogCategory } from "@/lib/types/blog";
-import { categoryDisplayNames, categoryGroups } from "@/lib/utils/blogUtils";
-import { CATEGORIES_QUERY, POSTS_BY_CATEGORY_QUERY } from "@/lib/sanity/queries";
-import { PostCard } from "@/components/blog/PostCard";
-import { CategoryList } from "@/components/blog/CategoryList";
+import type { BlogPost, CategoryWithCount, GroupedCategory, BlogCategory } from "@/features/blog/types/blog";
+import { categoryDisplayNames, categoryGroups } from "@/features/blog/utils/blogUtils";
+import { CATEGORIES_QUERY, POSTS_BY_CATEGORY_QUERY } from "@/shared/lib/sanity/queries";
+import { PostCard } from "@/features/blog/components/PostCard";
+import { CategoryList } from "@/features/blog/components/CategoryList";
 
 interface CategoryPageProps {
   params: { categorySlug: string };
