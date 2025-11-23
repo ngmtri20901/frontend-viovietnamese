@@ -1,0 +1,31 @@
+{
+  "pages": {
+    "/(app)/learn/[topicSlug]/page": [
+      "static/chunks/d96012bcfc98706a.js",
+      "static/chunks/2532f69a4166d704.js",
+      "static/chunks/2473c16c0c2f6b5f.css",
+      "static/chunks/9be4516a8e60b3b0.css",
+      "static/chunks/9e4a0e4393e860a8.js",
+      "static/chunks/de2580560f8ef926.js",
+      "static/chunks/7bbef733d5157221.js",
+      "static/chunks/ef84d9b598d539a5.js",
+      "static/chunks/b63eec5e24f4d4da.js",
+      "static/chunks/afcd1be17ad4b504.js",
+      "static/chunks/f89e5a9db96bdd83.js",
+      "static/chunks/3e542445d8a3e341.js",
+      "static/chunks/9bd67e3f8cfe26eb.js",
+      "static/chunks/47fb97c67f398315.js",
+      "static/chunks/f8111df9ce35cb4d.js",
+      "static/chunks/121c4d714d79dfae.js",
+      "static/chunks/9693a32dc34f3357.js",
+      "static/chunks/57e19f6c6fd8857e.js",
+      "static/chunks/0812563c0bc3a153.js",
+      "static/chunks/53286f18b5a83935.js",
+      "static/chunks/5cff052e98e5285d.js",
+      "static/chunks/bbf89c5280eb1f0c.js",
+      "static/chunks/efaa58374b957228.js",
+      "static/chunks/c16efd9677d8c131.js",
+      "static/chunks/turbopack-cfad9fb5910cef99.js"
+    ]
+  }
+}

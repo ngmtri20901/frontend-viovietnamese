@@ -1,0 +1,11 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/exercise/resume/route.js")
+R.c("server/chunks/[root-of-the-server]__f6ba9099._.js")
+R.c("server/chunks/node_modules_ae5569c2._.js")
+R.c("server/chunks/node_modules_next_dist_23a07070._.js")
+R.c("server/chunks/[root-of-the-server]__98d6514a._.js")
+R.c("server/chunks/node_modules_ad08c492._.js")
+R.c("server/chunks/[root-of-the-server]__56bea5b2._.js")
+R.c("server/chunks/node_modules_next_61624b25._.js")
+R.m(663266)
+R.m(218061)
+module.exports=R.m(218061).exports
