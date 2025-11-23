@@ -1,0 +1,95 @@
+{
+  "node": {
+    "40b7874b5beee18e2e913212052e9efd3061f9459a": {
+      "workers": {
+        "app/(app)/flashcards/create/page": {
+          "moduleId": "503805",
+          "async": false,
+          "exportedName": "saveVocabularyFromLesson",
+          "filename": "features/flashcards/actions/save-vocab.ts"
+        }
+      },
+      "layer": {
+        "app/(app)/flashcards/create/page": "action-browser"
+      },
+      "exportedName": "saveVocabularyFromLesson",
+      "filename": "features/flashcards/actions/save-vocab.ts"
+    },
+    "40a12d3392f5f7e3fd35f464eebcfef7da83f3293b": {
+      "workers": {
+        "app/(app)/flashcards/create/page": {
+          "moduleId": "503805",
+          "async": false,
+          "exportedName": "unsaveVocabularyFromLesson",
+          "filename": "features/flashcards/actions/unsave-vocab.ts"
+        }
+      },
+      "layer": {
+        "app/(app)/flashcards/create/page": "action-browser"
+      },
+      "exportedName": "unsaveVocabularyFromLesson",
+      "filename": "features/flashcards/actions/unsave-vocab.ts"
+    },
+    "40df7fcce92212cb097847765ff160f9fc458fc66f": {
+      "workers": {
+        "app/(app)/flashcards/create/page": {
+          "moduleId": "503805",
+          "async": false,
+          "exportedName": "createFlashcard",
+          "filename": "features/flashcards/actions/create.ts"
+        }
+      },
+      "layer": {
+        "app/(app)/flashcards/create/page": "action-browser"
+      },
+      "exportedName": "createFlashcard",
+      "filename": "features/flashcards/actions/create.ts"
+    },
+    "601ee54aa3ae234bd73dda91171672730ddb48c914": {
+      "workers": {
+        "app/(app)/flashcards/create/page": {
+          "moduleId": "503805",
+          "async": false,
+          "exportedName": "uploadFlashcardImage",
+          "filename": "features/flashcards/actions/create.ts"
+        }
+      },
+      "layer": {
+        "app/(app)/flashcards/create/page": "action-browser"
+      },
+      "exportedName": "uploadFlashcardImage",
+      "filename": "features/flashcards/actions/create.ts"
+    },
+    "406bf430709870b36d9a7ac85feffe60d998327396": {
+      "workers": {
+        "app/(app)/flashcards/create/page": {
+          "moduleId": "503805",
+          "async": false,
+          "exportedName": "updateCustomFlashcard",
+          "filename": "features/flashcards/actions/manage.ts"
+        }
+      },
+      "layer": {
+        "app/(app)/flashcards/create/page": "action-browser"
+      },
+      "exportedName": "updateCustomFlashcard",
+      "filename": "features/flashcards/actions/manage.ts"
+    },
+    "404db174e64fde8dc83f3aecc37e4914f00496bceb": {
+      "workers": {
+        "app/(app)/flashcards/create/page": {
+          "moduleId": "503805",
+          "async": false,
+          "exportedName": "deleteCustomFlashcard",
+          "filename": "features/flashcards/actions/manage.ts"
+        }
+      },
+      "layer": {
+        "app/(app)/flashcards/create/page": "action-browser"
+      },
+      "exportedName": "deleteCustomFlashcard",
+      "filename": "features/flashcards/actions/manage.ts"
+    }
+  },
+  "edge": {}
+}

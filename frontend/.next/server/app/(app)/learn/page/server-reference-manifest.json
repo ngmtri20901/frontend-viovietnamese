@@ -1,0 +1,35 @@
+{
+  "node": {
+    "40b7874b5beee18e2e913212052e9efd3061f9459a": {
+      "workers": {
+        "app/(app)/learn/page": {
+          "moduleId": "247738",
+          "async": false,
+          "exportedName": "saveVocabularyFromLesson",
+          "filename": "features/flashcards/actions/save-vocab.ts"
+        }
+      },
+      "layer": {
+        "app/(app)/learn/page": "action-browser"
+      },
+      "exportedName": "saveVocabularyFromLesson",
+      "filename": "features/flashcards/actions/save-vocab.ts"
+    },
+    "40a12d3392f5f7e3fd35f464eebcfef7da83f3293b": {
+      "workers": {
+        "app/(app)/learn/page": {
+          "moduleId": "247738",
+          "async": false,
+          "exportedName": "unsaveVocabularyFromLesson",
+          "filename": "features/flashcards/actions/unsave-vocab.ts"
+        }
+      },
+      "layer": {
+        "app/(app)/learn/page": "action-browser"
+      },
+      "exportedName": "unsaveVocabularyFromLesson",
+      "filename": "features/flashcards/actions/unsave-vocab.ts"
+    }
+  },
+  "edge": {}
+}
