@@ -1,3 +1,0 @@
-{
-  "/(app)/learn/[topicSlug]/[lessonSlug]/exercise/page": "app/(app)/learn/[topicSlug]/[lessonSlug]/exercise/page.js"
-}
