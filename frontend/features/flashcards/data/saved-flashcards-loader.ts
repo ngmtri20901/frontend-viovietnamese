@@ -450,11 +450,12 @@ export async function loadSavedFlashcardsData(): Promise<SavedFlashcardsData | n
     console.log('👤 [Server] User authenticated:', user.id)
 
     // Fetch all data in parallel
+    // ✅ FIXED: Pass supabase client to checkSyncStatus
     const [savedFlashcards, userStats, topics, syncStatus] = await Promise.all([
       getSavedFlashcardsWithDetails(supabase, user.id),
       getUserStats(supabase, user.id),
       getTopics(supabase, user.id),
-      checkSyncStatus(user.id).catch(err => {
+      checkSyncStatus(supabase, user.id).catch(err => {
         console.error('❌ [Server] Error checking sync status:', err)
         return null
       }),

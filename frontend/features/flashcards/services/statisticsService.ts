@@ -180,18 +180,11 @@ export async function getUserDetailedStats(daysBack: number = 30): Promise<Detai
 
     console.log(`Fetching detailed stats for user ${user.id}, ${daysBack} days back`)
 
-    const fromDate = new Date()
-    fromDate.setDate(fromDate.getDate() - daysBack)
-    const fromDateString = fromDate.toISOString().split("T")[0]
-    
-    console.log(`Query date range: from ${fromDateString} onwards`)
-
-    const { data, error } = await supabase
-      .from("flashcard_statistics")
-      .select("*")
-      .eq("user_id", user.id)
-      .gte("date", fromDateString)
-      .order("date", { ascending: true })
+    // Use RPC function to avoid timezone conversion issues with date comparisons
+    const { data, error } = await supabase.rpc('get_user_detailed_stats', {
+      p_user_id: user.id,
+      p_days_back: daysBack
+    })
 
     if (error) {
       console.error("Error fetching detailed stats:", error)

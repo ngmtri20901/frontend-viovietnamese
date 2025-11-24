@@ -150,8 +150,25 @@ export function useUserProfile() {
 
         console.log('Auth state changed:', event, session?.user?.id)
 
-        // Invalidate and refetch user data on auth changes
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        /**
+         * ✅ CRITICAL FIX: Handle ALL auth events that change session state
+         *
+         * - SIGNED_IN: User logged in (login form, OAuth callback)
+         * - SIGNED_OUT: User logged out
+         * - TOKEN_REFRESHED: Access token auto-refreshed
+         * - INITIAL_SESSION: Session loaded from cookies (page load/refresh) ← WAS MISSING
+         * - USER_UPDATED: User metadata changed (profile update, password reset) ← WAS MISSING
+         *
+         * Without INITIAL_SESSION, cached anonymous state persists for 30s on page load
+         * Without USER_UPDATED, profile changes don't propagate to UI
+         */
+        if (
+          event === 'SIGNED_IN' ||
+          event === 'SIGNED_OUT' ||
+          event === 'TOKEN_REFRESHED' ||
+          event === 'INITIAL_SESSION' ||
+          event === 'USER_UPDATED'
+        ) {
           await queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() })
 
           // Also invalidate related user data

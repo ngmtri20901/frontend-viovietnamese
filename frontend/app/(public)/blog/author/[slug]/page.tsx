@@ -11,7 +11,7 @@ import { notFound } from "next/navigation";
 const POSTS_PER_PAGE = 5;
 
 interface AuthorPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
@@ -50,7 +50,9 @@ async function getAuthorData(slug: string) {
 }
 
 export default async function AuthorPage({ params, searchParams }: AuthorPageProps) {
-  const author = await getAuthorData(params.slug);
+  // Next.js 15: params is now a Promise and must be awaited
+  const { slug } = await params;
+  const author = await getAuthorData(slug);
   if (!author) notFound();
 
   const page = Number(searchParams.page) || 0;
@@ -143,7 +145,7 @@ export default async function AuthorPage({ params, searchParams }: AuthorPagePro
                     disabled={currentPage === 0}
                   >
                     <Link
-                      href={`/blog/author/${params.slug}?page=${currentPage - 1}`}
+                      href={`/blog/author/${slug}?page=${currentPage - 1}`}
                     >
                       <ChevronLeft className="h-4 w-4 mr-2" />
                       Previous
@@ -155,7 +157,7 @@ export default async function AuthorPage({ params, searchParams }: AuthorPagePro
                     disabled={currentPage === totalPages - 1}
                   >
                     <Link
-                      href={`/blog/author/${params.slug}?page=${currentPage + 1}`}
+                      href={`/blog/author/${slug}?page=${currentPage + 1}`}
                     >
                       Next
                       <ChevronRight className="h-4 w-4 ml-2" />

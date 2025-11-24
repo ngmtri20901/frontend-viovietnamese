@@ -17,22 +17,20 @@ import {
 
 const getSupabase = cache(() => createClient());
 
-export const getCachedSession = async () => {
-  const supabase = await getSupabase();
-
-  return unstable_cache(
-    async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      return data.user;
-    },
-    ['session'],
-    {
-      tags: [`session`],
-      revalidate: 10, // Cache for 10 seconds
-    }
-  )();
-};
+/**
+ * ❌ REMOVED: getCachedSession() - Security Vulnerability
+ *
+ * This function was removed because it used a global cache key ['session']
+ * without user identification, causing session leakage between users.
+ *
+ * ISSUE: User A's session would be returned to User B for 10 seconds.
+ *
+ * REPLACEMENT: Use direct Supabase calls in API routes:
+ *   const supabase = await createClient()
+ *   const { data: { user } } = await supabase.auth.getUser()
+ *
+ * See: AUTH-AUDIT-REPORT-FINAL.md - Root Cause #2
+ */
 
 export const getCachedUserById = async (id: string) => {
   const supabase = await getSupabase();

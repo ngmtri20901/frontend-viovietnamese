@@ -1,6 +1,6 @@
 // Cached queries
 export {
-  getCachedSession,
+  // getCachedSession, // ❌ REMOVED - Security vulnerability (session leakage)
   getCachedUserById,
   getCachedUser,
   getCachedChatById,

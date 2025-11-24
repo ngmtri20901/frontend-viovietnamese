@@ -16,6 +16,7 @@ import { GoogleLoginButton } from '@/features/auth/components/google-login-butto
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   const [email, setEmail] = useState('')
@@ -23,6 +24,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,13 +38,35 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         password,
       })
       if (error) throw error
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push('/dashboard')
+
+      /**
+       * ✅ CRITICAL FIX: Proper cache invalidation after login
+       *
+       * Steps to ensure fresh auth state:
+       * 1. Clear ALL TanStack Query cache (old user data)
+       * 2. Wait for auth state to propagate
+       * 3. Force router to refresh server components
+       * 4. Navigate to dashboard with fresh data
+       *
+       * Without this, dashboard shows cached "User" placeholder for 30s
+       */
+
+      // 1. Clear TanStack Query cache
+      queryClient.clear()
+
+      // 2. Wait for auth state to propagate to Supabase client
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // 3. Force router to refresh server components (invalidate Next.js cache)
+      router.refresh()
+
+      // 4. Navigate with fresh data
+      router.push('/learn')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
-    } finally {
-      setIsLoading(false)
+      setIsLoading(false) // Only set to false on error
     }
+    // Don't set isLoading to false on success - navigation will happen
   }
 
   return (

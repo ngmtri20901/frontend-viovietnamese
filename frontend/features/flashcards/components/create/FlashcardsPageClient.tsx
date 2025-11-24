@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/shared/lib/supabase/client'
+import { useUserProfile } from '@/shared/hooks/use-user-profile'
 import { toast } from 'sonner'
 import CreateFlashcardForm from './CreateFlashcardForm'
 import CustomFlashcardsManager from './CustomFlashcardsManager'
@@ -19,10 +20,27 @@ interface CustomFlashcard {
   created_at: string
 }
 
-export default function FlashcardsPageClient({ userId }: { userId: string }) {
+export default function FlashcardsPageClient() {
+  const { user, loading: authLoading } = useUserProfile()
+  const userId = user?.id
+
   const [flashcards, setFlashcards] = useState<CustomFlashcard[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedFlashcard, setSelectedFlashcard] = useState<CustomFlashcard | null>(null)
+
+  // Early return for auth loading
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center py-12 min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  // Early return if no user (layout should redirect, but handle edge case)
+  if (!userId) {
+    return null
+  }
 
   const fetchFlashcards = useCallback(async () => {
     try {

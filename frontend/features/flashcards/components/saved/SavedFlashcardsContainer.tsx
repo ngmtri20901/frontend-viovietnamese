@@ -366,7 +366,9 @@ export default function SavedFlashcardsContainer({ initialData }: { initialData:
 
     try {
       console.log(`🔄 Syncing ${syncStatus.unsyncedCount} unsynced flashcards...`)
-      const result = await syncCustomFlashcardsToSaved(initialData.userId)
+      // ✅ FIXED: Pass Supabase client instance
+      const supabase = createClient()
+      const result = await syncCustomFlashcardsToSaved(supabase, initialData.userId)
 
       if (result.success && result.synced > 0) {
         toast.success(`Synchronized ${result.synced} custom flashcard${result.synced > 1 ? 's' : ''} to your collection`)

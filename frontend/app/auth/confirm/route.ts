@@ -1,6 +1,7 @@
 import { createClient } from '@/shared/lib/supabase/server'
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { type NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -18,6 +19,17 @@ export async function GET(request: NextRequest) {
       token_hash,
     })
     if (!error) {
+      /**
+       * ✅ CRITICAL FIX: Invalidate server cache after email confirmation
+       *
+       * After verifying OTP (email confirmation, password reset), we must:
+       * 1. Revalidate the entire app layout (forces Next.js to re-render with new session)
+       * 2. Redirect to destination with fresh server state
+       *
+       * Without this, protected pages show cached state until manual refresh
+       */
+      revalidatePath('/', 'layout')
+
       // redirect user to specified redirect URL or root of app
       redirect(next)
     } else {

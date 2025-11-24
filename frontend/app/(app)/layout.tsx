@@ -10,6 +10,18 @@ import {
 import { createClient } from '@/shared/lib/supabase/server'
 import { UserCoins } from "@/features/learn/components/lesson"
 
+/**
+ * ✅ CRITICAL FIX: Force dynamic rendering
+ *
+ * Without these exports, Next.js caches this layout which causes:
+ * - After logout: cached version shows protected content
+ * - After login: cached version shows logged-out state
+ *
+ * These settings ensure the layout ALWAYS fetches fresh auth state
+ */
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function AppLayout({
   children,
 }: {
@@ -19,7 +31,7 @@ export default async function AppLayout({
 
   // Get the current user
   const { data: { user }, error: userError } = await supabase.auth.getUser()
-  
+
   if (userError || !user) {
     redirect('/auth/login')
   }

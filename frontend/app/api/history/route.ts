@@ -1,4 +1,3 @@
-import { getCachedSession } from '@/features/ai/chat/services/cached-queries';
 import { createClient } from '@/shared/lib/supabase/server';
 import { TABLES } from '@/features/ai/chat/types';
 
@@ -7,10 +6,13 @@ export async function GET(request: Request) {
     console.log('[History API] Starting history fetch request');
 
     const supabase = await createClient();
-    const user = await getCachedSession();
 
-    if (!user) {
-      console.warn('[History API] Unauthorized - no user session found');
+    // ✅ FIXED: Get fresh user data instead of using global cache
+    // Previous: const user = await getCachedSession() - caused session leakage
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      console.warn('[History API] Unauthorized - no user session found', authError);
       return Response.json(
         { success: false, error: 'Unauthorized', data: [], count: 0 },
         { status: 401 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/shared/lib/supabase/client"
+import { useUserProfile } from "@/shared/hooks/use-user-profile"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
@@ -64,15 +65,14 @@ const chartConfig = {
 
 export default function StatisticsClient() {
   const { isLoading, withLoading } = useLoading()
+  const { user, profile: userProfile, loading: authLoading } = useUserProfile()
 
   const [mounted, setMounted] = useState(false)
   const [statistics, setStatistics] = useState<StatisticsData[]>([])
   const [dataFetchResult, setDataFetchResult] = useState<DataFetchResult | null>(null)
-  const [user, setUser] = useState<User | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [timeRange, setTimeRange] = useState<"week" | "month">("week")
   const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly">("daily")
-  const [userDataLoaded, setUserDataLoaded] = useState(false)
   const [isLoadingStats, setIsLoadingStats] = useState(false)
 
   // Set mounted state to prevent hydration mismatch
@@ -131,101 +131,10 @@ export default function StatisticsClient() {
     }
   }
 
-  // Fetch user data ONCE on mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!mounted || userDataLoaded) return
-
-      try {
-        setError(null)
-
-        // Get current user
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-        if (authError) {
-          console.error("Auth error:", authError)
-          setError("Authentication error. Please log in again.")
-          return
-        }
-
-        if (!authUser) {
-          setError("Please log in to view your statistics")
-          return
-        }
-
-        console.log("Authenticated user ID:", authUser.id)
-
-        // Get user profile with improved error handling
-        try {
-          const { data: userProfiles, error: profileError } = await supabase
-            .from("user_profiles")
-            .select("*")
-            .eq("id", authUser.id)
-
-          if (profileError) {
-            console.error("Profile fetch error:", profileError)
-            console.error("Error code:", profileError.code)
-            console.error("Error details:", profileError.details)
-            console.error("Error hint:", profileError.hint)
-            console.error("Error message:", profileError.message)
-
-            // Handle specific error cases
-            if (profileError.code === "PGRST116") {
-              // No rows returned - need to create user profile
-              console.log("No user profile found, creating minimal user data")
-              setUser({
-                id: authUser.id,
-                name: authUser.email || "User",
-                subscription_type: "FREE",
-                streak_days: 0,
-                coins: 0
-              })
-            } else {
-              setError(`Profile fetch error: ${profileError.message}`)
-              return
-            }
-          } else if (userProfiles && userProfiles.length > 0) {
-            // Use the first profile if multiple exist
-            setUser(userProfiles[0])
-            if (userProfiles.length > 1) {
-              console.warn("Multiple user profiles found, using the first one")
-            }
-          } else {
-            // No profile found, create minimal user data
-            console.log("No user profile found, creating minimal user data")
-            setUser({
-              id: authUser.id,
-              name: authUser.email || "User",
-              subscription_type: "FREE",
-              streak_days: 0,
-              coins: 0
-            })
-          }
-          setUserDataLoaded(true)
-        } catch (profileError) {
-          console.error("User profile fetch failed:", profileError)
-          // Use minimal user data
-          setUser({
-            id: authUser.id,
-            name: authUser.email || "User",
-            subscription_type: "FREE",
-            streak_days: 0,
-            coins: 0
-          })
-          setUserDataLoaded(true)
-        }
-      } catch (error) {
-        console.error("General error:", error)
-        setError("An unexpected error occurred. Please try again.")
-      }
-    }
-
-    fetchUserData()
-  }, [mounted, userDataLoaded])
-
   // Fetch statistics data when timeRange changes
   useEffect(() => {
     const fetchStatisticsData = async () => {
-      if (!mounted || !userDataLoaded || isLoadingStats) return
+      if (!mounted || authLoading || !user || isLoadingStats) return
 
       setIsLoadingStats(true)
       await withLoading(async () => {
@@ -256,7 +165,7 @@ export default function StatisticsClient() {
     }
 
     fetchStatisticsData()
-  }, [timeRange, mounted, userDataLoaded])
+  }, [timeRange, mounted, user, authLoading, withLoading])
 
   // Calculate aggregate statistics
   const aggregateStats = useMemo(() => {
@@ -281,9 +190,9 @@ export default function StatisticsClient() {
       averageAccuracy,
       uniqueTopics: allTopics.size,
       studyDays: statistics.length,
-      currentStreak: user?.streak_days || 0
+      currentStreak: userProfile?.streak_count || 0
     }
-  }, [statistics, user])
+  }, [statistics, userProfile])
 
   // Process data for charts
   const chartData = useMemo(() => {
@@ -346,7 +255,12 @@ export default function StatisticsClient() {
   }
 
   // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
+  if (!mounted || authLoading) {
+    return <PageWithLoading isLoading={true} />
+  }
+
+  if (!user) {
+    // Layout should redirect, but handle edge case
     return null
   }
 

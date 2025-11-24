@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 // The client you created from the Server-Side Auth instructions
 import { createClient } from '@/shared/lib/supabase/server'
 
@@ -16,6 +17,17 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      /**
+       * ✅ CRITICAL FIX: Invalidate server cache after OAuth login
+       *
+       * After exchanging code for session, we must:
+       * 1. Revalidate the entire app layout (forces Next.js to re-render with new session)
+       * 2. Redirect to destination with fresh server state
+       *
+       * Without this, protected pages show cached "logged out" state until manual refresh
+       */
+      revalidatePath('/', 'layout')
+
       const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === 'development'
       if (isLocalEnv) {

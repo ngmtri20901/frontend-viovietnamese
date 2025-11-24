@@ -286,7 +286,9 @@ interface FullBlogPost extends BlogPost {
 }
 
 export default async function BlogPostPage({ params }: BlogPageProps) {
-  const post: FullBlogPost = await client.fetch(POST_QUERY, { slug: params.slug });
+  // Next.js 15: params is now a Promise and must be awaited
+  const { slug } = await params;
+  const post: FullBlogPost = await client.fetch(POST_QUERY, { slug });
   if (!post) return notFound();
 
   const category = post.categories?.[0]?.title || "Uncategorized";

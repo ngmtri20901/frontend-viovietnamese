@@ -12,12 +12,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // With SSR, we usually want to set some default staleTime
-            // above 0 to avoid refetching immediately on the client
-            staleTime: 5 * 60 * 1000, // 5 minutes (increased from 1 min for better cache hit rate)
-            gcTime: 10 * 60 * 1000, // 10 minutes (increased from 5 min)
-            retry: 1,
-            refetchOnWindowFocus: false,
+            /**
+             * ✅ UPDATED: Balanced cache configuration
+             *
+             * - staleTime: 1min for general data (down from 5min to be more responsive)
+             * - gcTime: 5min (down from 10min to free memory faster)
+             * - refetchOnWindowFocus: true (security - refresh data when user returns)
+             * - retry: 1 (keep low for fast failure feedback)
+             *
+             * Note: Auth queries override these in use-user-profile.ts:
+             * - Auth staleTime: 30s (more frequent updates for security)
+             * - Auth refetchOnWindowFocus: true (always check session on focus)
+             */
+            staleTime: 60 * 1000, // 1 minute - balanced for responsiveness
+            gcTime: 5 * 60 * 1000, // 5 minutes - reasonable memory management
+            retry: 1, // Fast fail for better UX
+            refetchOnWindowFocus: true, // Refresh when user returns to tab (security)
           },
         },
       })

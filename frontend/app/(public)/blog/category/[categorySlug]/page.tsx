@@ -12,7 +12,7 @@ import { PostCard } from "@/features/blog/components/PostCard";
 import { CategoryList } from "@/features/blog/components/CategoryList";
 
 interface CategoryPageProps {
-  params: { categorySlug: string };
+  params: Promise<{ categorySlug: string }>;
 }
 
 // Dynamic metadata for category pages
@@ -20,7 +20,9 @@ export async function generateMetadata(
   { params }: CategoryPageProps,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const slug = params.categorySlug;
+  // Next.js 15: params is now a Promise and must be awaited
+  const { categorySlug } = await params;
+  const slug = categorySlug;
   const category = await client.fetch<BlogCategory>(`*[_type == "category" && slug.current == $slug][0]{title, "slug": slug.current}`, { slug });
   const previousImages = (await parent).openGraph?.images || [];
 
@@ -50,8 +52,10 @@ export async function generateStaticParams() {
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const supabase = await createSupabaseClient();
   const { data: { session } } = await supabase.auth.getSession();
-  
-  const selectedCategorySlug = params.categorySlug.toLowerCase();
+
+  // Next.js 15: params is now a Promise and must be awaited
+  const { categorySlug } = await params;
+  const selectedCategorySlug = categorySlug.toLowerCase();
 
   const posts = await client.fetch<BlogPost[]>(POSTS_BY_CATEGORY_QUERY, { categorySlug: selectedCategorySlug });
   const allCategories = await client.fetch<CategoryWithCount[]>(CATEGORIES_QUERY);

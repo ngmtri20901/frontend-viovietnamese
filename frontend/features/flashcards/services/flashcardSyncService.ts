@@ -3,7 +3,7 @@
  * Handles syncing custom flashcards to saved_flashcards table
  */
 
-import { createClient } from '@/shared/lib/supabase/client'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface SyncStatus {
   needsSync: boolean
@@ -18,9 +18,14 @@ export interface SyncResult {
 
 /**
  * Check if custom flashcards need to be synced to saved_flashcards
+ *
+ * ✅ FIXED: Accept Supabase client as parameter instead of creating browser client
+ * This allows server-side code to pass the proper server client with cookies/auth
  */
-export async function checkSyncStatus(userId: string): Promise<SyncStatus> {
-  const supabase = createClient()
+export async function checkSyncStatus(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<SyncStatus> {
 
   // Get all custom flashcards for the user
   const { data: customFlashcards, error: customError } = await supabase
@@ -64,10 +69,14 @@ export async function checkSyncStatus(userId: string): Promise<SyncStatus> {
 
 /**
  * Sync custom flashcards to saved_flashcards table
+ *
+ * ✅ FIXED: Accept Supabase client as parameter
  */
-export async function syncCustomFlashcardsToSaved(userId: string): Promise<SyncResult> {
+export async function syncCustomFlashcardsToSaved(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<SyncResult> {
   try {
-    const supabase = createClient()
 
     // Get all custom flashcards for the user
     const { data: customFlashcards, error: customError } = await supabase
