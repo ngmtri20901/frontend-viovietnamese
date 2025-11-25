@@ -1,7 +1,7 @@
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
 import { NextResponse } from "next/server";
-import { createClient } from "@/shared/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 
 /**
  * Vapi Workflow API - Generate Vietnamese Conversation Prompts
@@ -88,9 +88,9 @@ Generate the ${amount} questions now:`,
     let prompts: string[];
     try {
       prompts = JSON.parse(promptsText);
-    } catch (parseError) {
+    } catch {
       // If parsing fails, try to extract array from text
-      const arrayMatch = promptsText.match(/\[.*\]/s);
+      const arrayMatch = promptsText.match(/\[[\s\S]*\]/);
       if (arrayMatch) {
         prompts = JSON.parse(arrayMatch[0]);
       } else {
@@ -105,8 +105,18 @@ Generate the ${amount} questions now:`,
 
     console.log("Generated prompts:", prompts);
 
-    // Get Supabase client
-    const supabase = await createClient();
+    // Get Supabase client with service role (bypasses RLS for server-side operations)
+    // This is safe here because Vapi.ai is a trusted external service
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
 
     // Get or find topic_id from database
     let topicId: string | null = null;
@@ -158,13 +168,16 @@ Generate the ${amount} questions now:`,
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     console.error("Error in /api/vapi/generate:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || "An unexpected error occurred",
-        details: process.env.NODE_ENV === "development" ? error.stack : undefined,
+        error: errorMessage,
+        details: process.env.NODE_ENV === "development" ? errorStack : undefined,
       },
       { status: 500 }
     );
