@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
     // Generate conversation prompts using Gemini
     const { text: promptsText } = await generateText({
-      model: google("gemini-2.0-flash-exp"),
+      model: google("gemini-2.5-flash"),
       prompt: `You are a Vietnamese language teacher creating conversation prompts for foreign students learning Vietnamese.
 
 **Student Level:** ${level}

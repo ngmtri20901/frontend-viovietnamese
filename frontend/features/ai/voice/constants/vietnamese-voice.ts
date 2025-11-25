@@ -1,4 +1,3 @@
-import { z } from "zod";
 
 // =====================================================
 // VIETNAMESE LEARNING - VAPI ASSISTANT CONFIG
@@ -42,7 +41,7 @@ Hãy bắt đầu cuộc trò chuyện một cách tự nhiên và thân thiện
     voiceId: "alloy",
   },
   transcriber: {
-    provider: "deepgram",
+    provider: "deepgram" as const,
     model: "nova-2",
     language: "vi",
   },
@@ -50,44 +49,9 @@ Hãy bắt đầu cuộc trò chuyện một cách tự nhiên và thân thiện
 };
 
 // =====================================================
-// FEEDBACK SCHEMA FOR GEMINI AI (Deprecated)
-// Moved to voice.action.ts
+// FEEDBACK SCHEMA FOR GEMINI AI
+// Moved to voice.action.ts - see createFeedback function
 // =====================================================
-
-export const feedbackSchema = z.object({
-  totalScore: z.number().min(0).max(100).describe("Điểm tổng thể từ 0-100"),
-  categoryScores: z
-    .array(
-      z.object({
-        name: z.string().describe("Tên kỹ năng"),
-        score: z.number().min(0).max(100).describe("Điểm từ 0-100"),
-        comment: z.string().describe("Nhận xét chi tiết"),
-      })
-    )
-    .describe("Điểm chi tiết cho từng kỹ năng"),
-  strengths: z
-    .array(z.string())
-    .describe("Các điểm mạnh của người học (tiếng Việt)"),
-  areasForImprovement: z
-    .array(z.string())
-    .describe("Các điểm cần cải thiện (tiếng Việt)"),
-  finalAssessment: z.string().describe("Đánh giá tổng thể bằng tiếng Việt"),
-  vocabularySuggestions: z
-    .array(
-      z.object({
-        word: z.string().describe("Từ tiếng Việt"),
-        meaning: z.string().describe("Nghĩa tiếng Anh"),
-        example: z.string().describe("Câu ví dụ tiếng Việt"),
-      })
-    )
-    .describe("Danh sách từ vựng nên học thêm"),
-  grammarNotes: z
-    .array(z.string())
-    .describe("Lưu ý về ngữ pháp tiếng Việt (tiếng Việt)"),
-  pronunciationTips: z
-    .array(z.string())
-    .describe("Gợi ý cải thiện phát âm (tiếng Việt)"),
-});
 
 // =====================================================
 // DIFFICULTY LEVELS

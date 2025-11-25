@@ -200,29 +200,6 @@ interface RouteParams {
   searchParams: Promise<Record<string, string>>;
 }
 
-// =====================================================
-// Backward Compatibility (for gradual migration)
-// =====================================================
-
-/** @deprecated Use VoiceConversation instead */
-interface Interview extends Omit<VoiceConversation, 'topic' | 'difficulty_level'> {
-  role: string;
-  level: string;
-  questions: string[];
-  techstack: string[];
-  type: string;
-  finalized: boolean;
-}
-
-/** @deprecated Use VoiceFeedback instead */
-interface Feedback extends Omit<VoiceFeedback, 'conversation_id'> {
-  interviewId: string;
-  totalScore: number;
-  categoryScores: CategoryScore[];
-  areasForImprovement: string[];
-  finalAssessment: string;
-  createdAt: string;
-}
 
 // =====================================================
 // Utility Types

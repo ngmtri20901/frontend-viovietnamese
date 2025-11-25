@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils/cn";
 import { vapi } from "@/features/ai/voice/vapi.sdk";
-import { vietnameseTutorAssistant } from "@/shared/constants/vietnamese-voice";
+import { vietnameseTutorAssistant } from "@/features/ai/voice/constants/vietnamese-voice";
 import { createFeedback } from "@/features/ai/voice/actions/voice.action";
 
 enum CallStatus {
@@ -136,7 +136,8 @@ const Agent = ({
       }
 
       // Create assistant config with Vietnamese tutor system message
-      const assistantConfig = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const assistantConfig: any = {
         ...vietnameseTutorAssistant,
         firstMessage:
           topicTitle
