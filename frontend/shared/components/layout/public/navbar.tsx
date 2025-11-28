@@ -159,11 +159,11 @@ export function Navbar() {
             <div className="flex items-center px-4 space-x-3">
               {isLoggedIn ? (
                 <Link
-                  href="/dashboard"
+                  href="/learn"
                   className="block text-base font-medium font-ui text-ds-primary hover:text-ds-primary-hover"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Dashboard
+                  Learn
                 </Link>
               ) : (
                 <>

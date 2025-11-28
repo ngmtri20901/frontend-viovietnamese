@@ -84,12 +84,6 @@ export async function createClient() {
           }
         },
       },
-      // Add configuration to prevent session refresh during review sessions
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false, // Disable auto refresh in server components
-        detectSessionInUrl: true,
-      }
     }
   )
 }

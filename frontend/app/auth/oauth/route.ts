@@ -21,23 +21,37 @@ export async function GET(request: Request) {
        * ✅ CRITICAL FIX: Invalidate server cache after OAuth login
        *
        * After exchanging code for session, we must:
-       * 1. Revalidate the entire app layout (forces Next.js to re-render with new session)
+       * 1. Revalidate the entire app (forces Next.js to re-render with new session)
        * 2. Redirect to destination with fresh server state
        *
        * Without this, protected pages show cached "logged out" state until manual refresh
        */
+      // Revalidate all paths to ensure fresh data
       revalidatePath('/', 'layout')
+      revalidatePath('/learn', 'page')
 
       const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === 'development'
+      
+      let redirectUrl: string
       if (isLocalEnv) {
         // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`)
+        redirectUrl = `${origin}${next}`
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
+        redirectUrl = `https://${forwardedHost}${next}`
       } else {
-        return NextResponse.redirect(`${origin}${next}`)
+        redirectUrl = `${origin}${next}`
       }
+      
+      // Use 303 See Other to ensure browser makes a GET request and doesn't cache the redirect
+      const response = NextResponse.redirect(redirectUrl, { status: 303 })
+      
+      // Add cache control headers to prevent caching of auth-related redirects
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      
+      return response
     }
   }
 

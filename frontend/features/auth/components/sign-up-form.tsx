@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
+import { PasswordInput } from '@/shared/components/ui/password-input'
 import { Label } from '@/shared/components/ui/label'
 import { GoogleLoginButton } from '@/features/auth/components/google-login-button'
 import Link from 'next/link'
@@ -79,9 +80,8 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -91,9 +91,8 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 <div className="flex items-center">
                   <Label htmlFor="repeat-password">Repeat Password</Label>
                 </div>
-                <Input
+                <PasswordInput
                   id="repeat-password"
-                  type="password"
                   required
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}

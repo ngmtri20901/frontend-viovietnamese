@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
+import { PasswordInput } from '@/shared/components/ui/password-input'
 import { Label } from '@/shared/components/ui/label'
 import { GoogleLoginButton } from '@/features/auth/components/google-login-button'
 import Link from 'next/link'
@@ -100,9 +101,8 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                     Forgot your password?
                   </Link>
                 </div>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
