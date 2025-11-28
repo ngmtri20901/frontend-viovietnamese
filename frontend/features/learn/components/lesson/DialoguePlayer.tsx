@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Play, Pause, Volume2, RotateCw, RotateCcw, Loader2 } from "lucide-react";
-import { TbMessageLanguage } from "react-icons/tb";
 import { Button } from "@/shared/components/ui/button";
 import { Slider } from "@/shared/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
@@ -12,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { TranslationTrigger } from "@/shared/components/ui/translation-trigger";
 
 type WordTimestamp = {
   s: number; // start time in milliseconds
@@ -165,7 +165,6 @@ export default function DialoguePlayer({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   
   // Audio player states
   const [isPlaying, setIsPlaying] = useState(false);
@@ -798,33 +797,13 @@ export default function DialoguePlayer({
                         </Button>
                       )}
 
-                      {/* Nút translate: Languages + Tooltip hiển thị TRÊN icon */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="p-1 h-7 w-7 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full"
-                            aria-label="See English translation"
-                            onMouseEnter={() => setHoverIndex(i)}
-                            onMouseLeave={() => setHoverIndex((cur) => (cur === i ? null : cur))}
-                            disabled={!ln.en}
-                          >
-                            <TbMessageLanguage className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-
-                        {ln.en && hoverIndex === i ? (
-                          <TooltipContent
-                            side="top"
-                            align="center"
-                            sideOffset={8}
-                            className="max-w-[28rem] whitespace-pre-wrap leading-relaxed text-sm"
-                          >
-                            <p className="italic text-gray-700">“{ln.en}”</p>
-                          </TooltipContent>
-                        ) : null}
-                      </Tooltip>
+                      {/* Translation trigger - responsive tooltip/popover */}
+                      <TranslationTrigger
+                        translation={ln.en || ""}
+                        side="top"
+                        className="p-1 h-7 w-7 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
+                        disabled={!ln.en}
+                      />
                     </div>
 
                     <div className={`mt-1 ${palette.text} font-medium`}>

@@ -28,21 +28,9 @@ export default function FlashcardsPageClient() {
   const [loading, setLoading] = useState(true)
   const [selectedFlashcard, setSelectedFlashcard] = useState<CustomFlashcard | null>(null)
 
-  // Early return for auth loading
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center py-12 min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
-
-  // Early return if no user (layout should redirect, but handle edge case)
-  if (!userId) {
-    return null
-  }
-
   const fetchFlashcards = useCallback(async () => {
+    if (!userId) return
+
     try {
       setLoading(true)
       const supabase = createClient()
@@ -68,6 +56,20 @@ export default function FlashcardsPageClient() {
   useEffect(() => {
     fetchFlashcards()
   }, [fetchFlashcards])
+
+  // Early return for auth loading - AFTER all hooks
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center py-12 min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  // Early return if no user (layout should redirect, but handle edge case)
+  if (!userId) {
+    return null
+  }
 
   const handleSelectFlashcard = (flashcard: CustomFlashcard) => {
     setSelectedFlashcard(flashcard)

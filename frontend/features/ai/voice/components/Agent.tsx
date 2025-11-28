@@ -1,13 +1,31 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { cn } from "@/shared/utils/cn";
 import { vapi } from "@/features/ai/voice/vapi.sdk";
-import { vietnameseTutorAssistant } from "@/features/ai/voice/constants/vietnamese-voice";
-import { createFeedback } from "@/features/ai/voice/actions/voice.action";
+import {
+  getAssistantIdForMode,
+  type ConversationMode,
+  type FreeTalkVariables,
+  type ScenarioVariables,
+  type Part1Variables,
+  type Part2Variables,
+  type Part3Variables,
+} from "@/features/ai/voice/constants/vietnamese-voice";
+import {
+  createFeedback,
+  createTranscript,
+  updateConversation,
+  getConversationById,
+} from "@/features/ai/voice/actions/voice.action";
+import type { AgentProps } from "@/features/ai/voice/types";
+import { CallTimer } from "./CallTimer";
+import { CallConnectingLoader } from "./CallConnectingLoader";
+import { FeedbackGeneratingLoader } from "./FeedbackGeneratingLoader";
+import { VoiceCallInterface } from "./VoiceCallInterface";
+import { Button } from "@/shared/components/ui/button";
+import { MessageSquare, X } from "lucide-react";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -26,29 +44,68 @@ const Agent = ({
   userId,
   conversationId,
   feedbackId,
-  type,
+  mode,
   topicTitle,
   prompts,
+  vapiVariables,
 }: AgentProps) => {
   const router = useRouter();
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [lastMessage, setLastMessage] = useState<string>("");
+  const [callStartTime, setCallStartTime] = useState<number>(0);
+  const [sequenceNumber, setSequenceNumber] = useState<number>(0);
+  const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false);
+  const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false);
 
   useEffect(() => {
     const onCallStart = () => {
       setCallStatus(CallStatus.ACTIVE);
+      setCallStartTime(Date.now());
+      setSequenceNumber(0);
     };
 
-    const onCallEnd = () => {
+    const onCallEnd = async () => {
       setCallStatus(CallStatus.FINISHED);
+
+      // Update conversation on call end (only when conversationId exists)
+      if (conversationId) {
+        const durationSeconds = Math.floor((Date.now() - callStartTime) / 1000);
+        const userMessageCount = messages.filter((m) => m.role === "user").length;
+
+        await updateConversation({
+          conversationId,
+          durationSeconds,
+          messageCount: messages.length,
+          userMessageCount,
+          status: "completed",
+          isCompleted: true,
+          completedAt: new Date().toISOString(),
+        });
+      }
     };
 
-    const onMessage = (message: Message) => {
+    const onMessage = async (message: Message) => {
       if (message.type === "transcript" && message.transcriptType === "final") {
         const newMessage = { role: message.role, content: message.transcript };
         setMessages((prev) => [...prev, newMessage]);
+
+        // Save transcript to database (only when conversationId exists)
+        if (conversationId) {
+          const currentSequence = sequenceNumber;
+          setSequenceNumber((prev) => prev + 1);
+
+          await createTranscript({
+            conversationId,
+            role: message.role as "user" | "assistant" | "system",
+            content: message.transcript,
+            timestampMs: Date.now() - callStartTime,
+            sequenceNumber: currentSequence,
+            vapiMessageType: message.type,
+            vapiTranscriptType: message.transcriptType,
+            rawVapiData: message as unknown as Record<string, unknown>,
+          });
+        }
       }
     };
 
@@ -81,77 +138,57 @@ const Agent = ({
       vapi.off("speech-end", onSpeechEnd);
       vapi.off("error", onError);
     };
-  }, []);
+  }, [conversationId, callStartTime, messages, sequenceNumber]);
 
   useEffect(() => {
-    if (messages.length > 0) {
-      setLastMessage(messages[messages.length - 1].content);
+    // Show feedback prompt when call ends (practice mode only)
+    if (callStatus === CallStatus.FINISHED && conversationId) {
+      setShowFeedbackPrompt(true);
     }
+  }, [callStatus, conversationId]);
 
-    const handleGenerateFeedback = async (messages: SavedMessage[]) => {
-      console.log("Generating feedback for conversation:", conversationId);
+  const handleGenerateFeedback = async () => {
+    setIsGeneratingFeedback(true);
+    setShowFeedbackPrompt(false);
 
-      const { success, data } = await createFeedback({
-        conversationId: conversationId!,
-        transcript: messages,
-        feedbackId,
-      });
+    console.log("Generating feedback for conversation:", conversationId);
 
-      if (success && data) {
-        router.push(`/ai/voice-chat/speak/${conversationId}/feedback`);
-      } else {
-        console.error("Error generating feedback");
-        router.push("/ai/voice-chat");
-      }
-    };
+    // Retrieve conversation to get feedback language preference
+    const conversation = await getConversationById(conversationId!);
+    const feedbackLanguage = conversation?.feedback_language || 'vietnamese';
 
-    if (callStatus === CallStatus.FINISHED) {
-      if (type === "practice") {
-        // Practice mode - just go back to topics
-        router.push("/ai/voice-chat");
-      } else {
-        // Conversation mode - generate feedback
-        handleGenerateFeedback(messages);
-      }
+    const { success, data } = await createFeedback({
+      conversationId: conversationId!,
+      transcript: messages,
+      feedbackId,
+      feedbackLanguage: feedbackLanguage as 'vietnamese' | 'english' | 'chinese' | 'korean' | 'japanese' | 'french' | 'german' | 'italian' | 'portuguese' | 'russian' | 'spanish' | 'thai' | 'turkish',
+    });
+
+    setIsGeneratingFeedback(false);
+
+    if (success && data) {
+      router.push(`/ai/voice/speak/${conversationId}/feedback`);
+    } else {
+      console.error("Error generating feedback");
+      router.push("/ai/voice");
     }
-  }, [messages, callStatus, feedbackId, conversationId, router, type]);
+  };
+
+  const handleEndWithoutFeedback = () => {
+    setShowFeedbackPrompt(false);
+    router.push("/ai/voice");
+  };
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
 
-    if (type === "practice") {
-      // Practice mode - use workflow for quick practice
-      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-        variableValues: {
-          username: userName,
-          userid: userId,
-          topic: topicTitle || "Vietnamese conversation",
-        },
-      });
-    } else {
-      // Conversation mode - use assistant config with prompts
-      let formattedPrompts = "";
-      if (prompts && prompts.length > 0) {
-        formattedPrompts = prompts.map((p) => `- ${p}`).join("\n");
-      }
+    // Get the correct assistant ID for this mode
+    const assistantId = getAssistantIdForMode(mode);
 
-      // Create assistant config with Vietnamese tutor system message
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const assistantConfig: any = {
-        ...vietnameseTutorAssistant,
-        firstMessage:
-          topicTitle
-            ? `Xin chào ${userName}! Today we will talk about "${topicTitle}". Are you ready? (Bạn đã sẵn sàng chưa?)`
-            : `Xin chào ${userName}! I'm your AI tutor. Let's practice Vietnamese together! (Chúng ta cùng luyện tiếng Việt nhé!)`,
-      };
-
-      // If we have prompts, add them to system message
-      if (formattedPrompts) {
-        assistantConfig.model.messages[0].content += `\n\n**Gợi ý câu hỏi để hỏi người học:**\n${formattedPrompts}`;
-      }
-
-      await vapi.start(assistantConfig);
-    }
+    // Start Vapi call with assistant ID and variable overrides
+    await vapi.start(assistantId, {
+      variableValues: vapiVariables,
+    });
   };
 
   const handleDisconnect = () => {
@@ -161,78 +198,94 @@ const Agent = ({
 
   return (
     <>
-      <div className="call-view">
-        {/* Vietnamese AI Tutor Card */}
-        <div className="card-interviewer">
-          <div className="avatar">
-            <Image
-              src="/ai-avatar.png"
-              alt="Vietnamese AI Tutor"
-              width={65}
-              height={54}
-              className="object-cover"
-            />
-            {isSpeaking && <span className="animate-speak" />}
-          </div>
-          <h3>AI Tutor</h3>
-          {topicTitle && (
-            <p className="text-sm text-gray-500 mt-1">{topicTitle}</p>
-          )}
-        </div>
+      {/* Call Timer - Fixed position in upper right */}
+      {callStatus === CallStatus.ACTIVE && (
+        <CallTimer
+          mode="countup"
+          startTime={callStartTime}
+          className="fixed top-4 right-4 z-50"
+        />
+      )}
 
-        {/* User Profile Card */}
-        <div className="card-border">
-          <div className="card-content">
-            <Image
-              src="/user-avatar.png"
-              alt="profile-image"
-              width={539}
-              height={539}
-              className="rounded-full object-cover size-[120px]"
-            />
-            <h3>{userName}</h3>
-          </div>
-        </div>
-      </div>
+      {/* Feedback Generating Loader */}
+      <FeedbackGeneratingLoader isOpen={isGeneratingFeedback} />
 
-      {messages.length > 0 && (
-        <div className="transcript-border">
-          <div className="transcript">
-            <p
-              key={lastMessage}
-              className={cn(
-                "transition-opacity duration-500 opacity-0",
-                "animate-fadeIn opacity-100"
-              )}
+      {/* Call Connection State */}
+      {callStatus === CallStatus.CONNECTING && (
+        <CallConnectingLoader isConnecting={true} />
+      )}
+
+      {/* Main Call Interface - 65/35 Layout */}
+      {callStatus === CallStatus.ACTIVE && (
+        <VoiceCallInterface
+          userName={userName}
+          topicTitle={topicTitle}
+          isSpeaking={isSpeaking}
+          isActive={callStatus === CallStatus.ACTIVE}
+          messages={messages.map((m, i) => ({
+            ...m,
+            timestamp: callStartTime + (i * 1000)
+          }))}
+          isExamMode={false}
+          showTranscriptToggle={false}
+          callStartTime={callStartTime}
+        />
+      )}
+
+      {/* Call Control Buttons */}
+      {callStatus !== CallStatus.FINISHED && (
+        <div className="w-full flex justify-center mt-6">
+          {callStatus !== CallStatus.ACTIVE ? (
+            <button
+              className="btn-call"
+              onClick={handleCall}
+              disabled={callStatus === CallStatus.CONNECTING}
             >
-              {lastMessage}
-            </p>
-          </div>
+              {callStatus === CallStatus.CONNECTING ? "Connecting..." : "Start Call"}
+            </button>
+          ) : (
+            <button className="btn-disconnect" onClick={handleDisconnect}>
+              End Call
+            </button>
+          )}
         </div>
       )}
 
-      <div className="w-full flex justify-center">
-        {callStatus !== "ACTIVE" ? (
-          <button className="relative btn-call" onClick={() => handleCall()}>
-            <span
-              className={cn(
-                "absolute animate-ping rounded-full opacity-75",
-                callStatus !== "CONNECTING" && "hidden"
-              )}
-            />
+      {/* Feedback Prompt Section - Shows after call ends */}
+      {showFeedbackPrompt && (
+        <div className="feedback-prompt-section">
+          <MessageSquare className="w-12 h-12 text-green-600 mx-auto mb-4" />
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            Call Completed!
+          </h3>
+          <p className="text-gray-600 mb-1">
+            Great job practicing! Would you like to get feedback on your performance?
+          </p>
+          <p className="text-sm text-gray-500 mb-6">
+            AI-powered feedback will analyze your conversation and provide personalized suggestions.
+          </p>
 
-            <span className="relative">
-              {callStatus === "INACTIVE" || callStatus === "FINISHED"
-                ? "Start Call"
-                : "Connecting..."}
-            </span>
-          </button>
-        ) : (
-          <button className="btn-disconnect" onClick={() => handleDisconnect()}>
-            End Call
-          </button>
-        )}
-      </div>
+          <div className="button-group">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleEndWithoutFeedback}
+              className="gap-2"
+            >
+              <X className="w-4 h-4" />
+              End Without Feedback
+            </Button>
+            <Button
+              size="lg"
+              onClick={handleGenerateFeedback}
+              className="gap-2 bg-green-600 hover:bg-green-700"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Generate Feedback
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -28,7 +28,7 @@ interface VoiceConversation {
   topic_id: string | null;
   topic: string;
   difficulty_level: 'beginner' | 'intermediate' | 'advanced';
-  conversation_type: 'free_talk' | 'scenario_based' | 'vocabulary_practice' | 'pronunciation_drill';
+  conversation_type: 'free_talk' | 'scenario_based' | 'vocabulary_practice' | 'pronunciation_drill' | 'part1_social' | 'part2_solution' | 'part3_presentation';
   prompts: string[];
   vapi_call_id: string | null;
   duration_seconds: number;
@@ -37,6 +37,9 @@ interface VoiceConversation {
   status: 'active' | 'completed' | 'abandoned';
   is_completed: boolean;
   has_feedback: boolean;
+  topic_selected: Record<string, any> | null; // JSONB for exam topic data
+  preparation_time_seconds: number | null; // Preparation time for exams
+  feedback_language: 'vietnamese' | 'english' | 'chinese' | 'korean' | 'japanese' | 'french' | 'german' | 'italian' | 'portuguese' | 'russian' | 'spanish' | 'thai' | 'turkish' | null; // Feedback language preference
   created_at: string;
   updated_at: string;
   completed_at: string | null;
@@ -110,11 +113,14 @@ interface UserVoiceStats {
 // =====================================================
 
 interface CreateConversationParams {
-  topicId: string | null;
+  topicId?: string | null;
   topic: string;
-  difficultyLevel: 'beginner' | 'intermediate' | 'advanced';
-  conversationType: 'free_talk' | 'scenario_based' | 'vocabulary_practice' | 'pronunciation_drill';
+  difficultyLevel?: 'beginner' | 'intermediate' | 'advanced';
+  conversationType: 'free_talk' | 'scenario_based' | 'vocabulary_practice' | 'pronunciation_drill' | 'part1_social' | 'part2_solution' | 'part3_presentation';
   prompts?: string[];
+  topicSelected?: Record<string, any>; // For exam modes - stores topic/question data
+  preparationTimeSeconds?: number; // For exam modes - 0, 60, or 120
+  feedbackLanguage?: 'vietnamese' | 'english' | 'chinese' | 'korean' | 'japanese' | 'french' | 'german' | 'italian' | 'portuguese' | 'russian' | 'spanish' | 'thai' | 'turkish'; // Feedback language preference (only for free_talk and scenario_based)
 }
 
 interface UpdateConversationParams {
@@ -143,6 +149,7 @@ interface CreateFeedbackParams {
   conversationId: string;
   transcript: { role: string; content: string }[];
   feedbackId?: string;
+  feedbackLanguage?: 'vietnamese' | 'english' | 'chinese' | 'korean' | 'japanese' | 'french' | 'german' | 'italian' | 'portuguese' | 'russian' | 'spanish' | 'thai' | 'turkish';
 }
 
 interface GetConversationsByUserParams {
@@ -206,7 +213,7 @@ interface RouteParams {
 // =====================================================
 
 type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
-type ConversationType = 'free_talk' | 'scenario_based' | 'vocabulary_practice' | 'pronunciation_drill';
+type ConversationType = 'free_talk' | 'scenario_based' | 'vocabulary_practice' | 'pronunciation_drill' | 'part1_social' | 'part2_solution' | 'part3_presentation';
 type ConversationStatus = 'active' | 'completed' | 'abandoned';
 type TranscriptRole = 'user' | 'assistant' | 'system';
 
@@ -224,7 +231,8 @@ interface ApiResponse<T = any> {
 interface CreateConversationResponse extends ApiResponse {
   data?: {
     conversationId: string;
-    conversation: VoiceConversation;
+    conversation: VoiceConversation | null;
+    quota?: VoiceQuota | null;
   };
 }
 
@@ -242,4 +250,23 @@ interface CreateFeedbackResponse extends ApiResponse {
 interface SavedMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
+}
+
+// =====================================================
+// Quota and Entitlements Types
+// =====================================================
+
+interface VoiceQuota {
+  limitSeconds: number;
+  usedSeconds: number;
+  remainingSeconds: number;
+  isExceeded: boolean;
+  resetType: "never" | "monthly";
+  resetDate?: string;
+}
+
+interface QuotaCheckResult {
+  canCreate: boolean;
+  quota: VoiceQuota | null;
+  error?: string;
 }

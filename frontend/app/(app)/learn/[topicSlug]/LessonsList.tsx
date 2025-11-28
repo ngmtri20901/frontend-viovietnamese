@@ -134,14 +134,16 @@ export default function LessonsList({
                   {/* Action */}
                   <div>
                     {isLocked ? (
-                      <Button disabled variant="secondary" className="px-6">
+                      <Button disabled variant="secondary" className="px-6" size="lg">
                         <Lock size={16} className="mr-2" />
                         Locked
                       </Button>
                     ) : (
-                      <Button 
+                      <Button
                         asChild
-                        className="px-6 bg-[#067BC2] hover:bg-[#055a9f]"
+                        variant="default"
+                        size="lg"
+                        className="px-6"
                       >
                         <Link href={`/learn/${topicSlug}/${lesson.slug}`}>
                           {progress?.status === 'passed' ? 'Review' : 'Start Lesson'}

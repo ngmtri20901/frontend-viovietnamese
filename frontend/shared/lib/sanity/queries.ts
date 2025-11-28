@@ -27,4 +27,15 @@ export const POSTS_BY_CATEGORY_QUERY = `*[_type == "post" && defined(slug.curren
   mainImage,
   "categories": categories[]->{title, "slug": slug.current},
   "author": author->{name}
+}`;
+
+export const LATEST_POSTS_QUERY = `*[_type == "post" && defined(slug.current)]|order(publishedAt desc)[0...3]{
+  _id,
+  title,
+  slug,
+  publishedAt,
+  excerpt,
+  mainImage,
+  "categories": categories[]->{_id, title, "slug": slug.current},
+  "author": author->{name}
 }`; 

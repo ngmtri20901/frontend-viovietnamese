@@ -9,15 +9,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { TbMessageLanguage } from "react-icons/tb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/shared/components/ui/tooltip";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
+import { TranslationTrigger } from "@/shared/components/ui/translation-trigger";
 import clsx from "clsx";
 
 // --- INTERFACES ---
@@ -162,24 +157,14 @@ function SentenceItem({ example }: { example: ExamplePair }) {
       {/* Sentence Text */}
       <div className="mb-3 flex items-start gap-2">
         <p className="font-semibold text-emerald-800 text-base leading-relaxed flex-1">
-          “{example.vi}”
+          "{example.vi}"
         </p>
         {example.en && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                aria-label="Show English translation"
-                className="h-7 w-7 p-0 shrink-0 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100"
-              >
-                <TbMessageLanguage className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs">
-              <p className="text-sm italic">{example.en}</p>
-            </TooltipContent>
-          </Tooltip>
+          <TranslationTrigger
+            translation={example.en}
+            side="top"
+            className="shrink-0"
+          />
         )}
       </div>
 

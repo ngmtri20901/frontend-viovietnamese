@@ -16,7 +16,7 @@ export function AppLogo({
   return (
     <Link href="/" className={`block ${className}`}>
       <Image
-        src="/logo.png"
+        src="/images/brand/logo.png"
         alt="VietnameseNext Logo"
         width={width}
         height={height}

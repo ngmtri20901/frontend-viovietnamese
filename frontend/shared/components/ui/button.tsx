@@ -5,28 +5,74 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/shared/utils/cn"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-4 focus-visible:ring-offset-2 active:translate-y-1 uppercase tracking-wide",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+        // Primary - Vibrant Pink (Duolingo style with bottom shadow)
+        default: [
+          "bg-ds-primary text-ds-primary-foreground rounded-2xl",
+          "shadow-[0_6px_0_0_var(--ds-primary-active)]",
+          "hover:bg-ds-primary-hover hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_var(--ds-primary-active)]",
+          "active:shadow-[0_2px_0_0_var(--ds-primary-active)] active:translate-y-1",
+          "focus-visible:ring-ds-primary/30",
+        ].join(" "),
+
+        // Secondary - Purple
+        secondary: [
+          "bg-ds-secondary text-ds-secondary-foreground rounded-2xl",
+          "shadow-[0_6px_0_0_var(--ds-secondary-active)]",
+          "hover:bg-ds-secondary-hover hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_var(--ds-secondary-active)]",
+          "active:shadow-[0_2px_0_0_var(--ds-secondary-active)] active:translate-y-1",
+          "focus-visible:ring-ds-secondary/30",
+        ].join(" "),
+
+        // Accent - Golden Yellow
+        accent: [
+          "bg-ds-accent text-ds-accent-foreground rounded-2xl",
+          "shadow-[0_6px_0_0_var(--ds-accent-active)]",
+          "hover:bg-ds-accent-hover hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_var(--ds-accent-active)]",
+          "active:shadow-[0_2px_0_0_var(--ds-accent-active)] active:translate-y-1",
+          "focus-visible:ring-ds-accent/30",
+        ].join(" "),
+
+        // Destructive - Error Red
+        destructive: [
+          "bg-ds-error text-white rounded-2xl",
+          "shadow-[0_6px_0_0_var(--ds-error-active)]",
+          "hover:bg-[#ff5e5e] hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_var(--ds-error-active)]",
+          "active:shadow-[0_2px_0_0_var(--ds-error-active)] active:translate-y-1",
+          "focus-visible:ring-ds-error/30",
+        ].join(" "),
+
+        // Outline - White with border
+        outline: [
+          "border-3 border-gray-300 bg-white text-gray-700 rounded-2xl",
+          "shadow-[0_4px_0_0_rgba(0,0,0,0.1)]",
+          "hover:bg-gray-50 hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_rgba(0,0,0,0.1)]",
+          "active:shadow-[0_2px_0_0_rgba(0,0,0,0.1)] active:translate-y-0.5",
+          "focus-visible:ring-gray-300/50",
+        ].join(" "),
+
+        // Ghost - Transparent with hover fill
+        ghost: [
+          "rounded-2xl text-gray-700 bg-transparent",
+          "hover:bg-gray-100",
+          "active:bg-gray-200",
+          "focus-visible:ring-gray-300/50",
+        ].join(" "),
+
+        // Link - Text only
+        link: "text-ds-primary underline-offset-4 hover:underline active:text-ds-primary-active",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-        "icon-sm": "size-8",
-        "icon-lg": "size-10",
+        sm: "h-10 px-4 text-xs rounded-xl",
+        default: "h-12 px-6 py-3 text-sm",
+        lg: "h-14 px-8 py-4 text-base",
+        xl: "h-16 px-10 py-5 text-lg",
+        icon: "size-12 rounded-2xl",
+        "icon-sm": "size-10 rounded-xl",
+        "icon-lg": "size-14 rounded-2xl",
       },
     },
     defaultVariants: {

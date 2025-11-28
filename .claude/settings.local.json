@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__vapi__list_assistants",
+      "mcp__vapi__get_assistant",
+      "mcp__vapi__update_assistant",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__apply_migration",
+      "Bash(ls:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

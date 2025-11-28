@@ -4,10 +4,10 @@ import type React from "react"
 
 import { useState } from "react"
 import { Volume2, Bookmark, BookmarkCheck } from "lucide-react"
-import { TbMessageLanguage } from "react-icons/tb";
 import { Button } from "@/shared/components/ui/button"
 import { Badge } from "@/shared/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip"
+import { TooltipProvider } from "@/shared/components/ui/tooltip"
+import { TranslationTrigger } from "@/shared/components/ui/translation-trigger"
 // import { toast } from "sonner" // TODO: Install sonner or use alternative toast solution
 import { audioManager } from "@/shared/utils/audio"
 
@@ -226,25 +226,16 @@ export function FlashcardFront({ data, saved, onSave }: FlashcardFrontProps) {
                 <span className="text-gray-400">"</span>
               </p>
 
-              {/* English translation with hover - CHỈ DÙNG TOOLTIP */}
+              {/* English translation - responsive tooltip/popover */}
               {data.english_sentence && (
                 <div className="flex items-center gap-1 mt-1">
                   <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon" // Sử dụng size="icon" cho các nút chỉ chứa icon
-                          className="p-1 h-auto text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full"
-                          aria-label="Xem dịch câu ví dụ"
-                        >
-                          <TbMessageLanguage className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" align="start">
-                        <p className="text-sm text-gray-700 italic break-words">"{data.english_sentence}"</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <TranslationTrigger
+                      translation={data.english_sentence}
+                      side="bottom"
+                      align="start"
+                      className="p-1 h-auto text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
+                    />
                   </TooltipProvider>
                 </div>
               )}

@@ -4,6 +4,11 @@ import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { createClient } from "@/shared/lib/supabase/server";
+import {
+  entitlementsBySubscription,
+  getNextResetDate,
+  type SubscriptionType
+} from "../core/entitlements";
 
 // =====================================================
 // VOICE TOPICS
@@ -65,6 +70,68 @@ export async function getTopicsByDifficulty(
 }
 
 // =====================================================
+// VOICE QUOTA MANAGEMENT
+// =====================================================
+
+export async function checkVoiceQuota(userId: string): Promise<QuotaCheckResult> {
+  "use server";
+
+  const supabase = await createClient();
+
+  // Get user profile with subscription type
+  const { data: profile, error: profileError } = await supabase
+    .from("user_profiles")
+    .select("subscription_type")
+    .eq("id", userId)
+    .single();
+
+  if (profileError || !profile) {
+    return {
+      canCreate: false,
+      quota: null,
+      error: "Failed to fetch user profile"
+    };
+  }
+
+  const subscriptionType = (profile.subscription_type || "FREE") as SubscriptionType;
+
+  // Call database function to get quota usage
+  const { data: quotaData, error: quotaError } = await supabase
+    .rpc("get_user_voice_quota_usage", {
+      p_user_id: userId,
+      p_subscription_type: subscriptionType
+    })
+    .single();
+
+  if (quotaError) {
+    console.error("Error checking quota:", quotaError);
+    return {
+      canCreate: false,
+      quota: null,
+      error: "Failed to check quota"
+    };
+  }
+
+  const entitlements = entitlementsBySubscription[subscriptionType];
+
+  const quota: VoiceQuota = {
+    limitSeconds: quotaData.limit_seconds,
+    usedSeconds: quotaData.used_seconds,
+    remainingSeconds: quotaData.remaining_seconds,
+    isExceeded: quotaData.is_exceeded,
+    resetType: entitlements.resetType,
+    resetDate: entitlements.resetType === "monthly"
+      ? getNextResetDate().toISOString()
+      : undefined
+  };
+
+  return {
+    canCreate: !quotaData.is_exceeded,
+    quota
+  };
+}
+
+// =====================================================
 // VOICE CONVERSATIONS
 // =====================================================
 
@@ -85,15 +152,34 @@ export async function createConversation(
     };
   }
 
+  // CHECK QUOTA FIRST - enforce usage limits
+  const quotaCheck = await checkVoiceQuota(user.id);
+
+  if (!quotaCheck.canCreate) {
+    return {
+      success: false,
+      error: "voice_quota_exceeded",
+      message: "You have exceeded your voice chat quota. Please upgrade or wait for reset.",
+      data: {
+        conversationId: "",
+        conversation: null,
+        quota: quotaCheck.quota
+      }
+    };
+  }
+
   const { data, error } = await supabase
     .from("voice_conversations")
     .insert({
       user_id: user.id,
-      topic_id: params.topicId,
+      topic_id: params.topicId || null,
       topic: params.topic,
-      difficulty_level: params.difficultyLevel,
+      difficulty_level: params.difficultyLevel || "intermediate",
       conversation_type: params.conversationType,
       prompts: params.prompts || [],
+      topic_selected: params.topicSelected || null,
+      preparation_time_seconds: params.preparationTimeSeconds || null,
+      feedback_language: params.feedbackLanguage || null,
       status: "active",
     })
     .select()
@@ -253,38 +339,38 @@ export async function getTranscriptsByConversation(
 
 // Feedback schema for Gemini AI
 const feedbackSchema = z.object({
-  totalScore: z.number().min(0).max(100).describe("Điểm tổng thể từ 0-100"),
+  totalScore: z.number().min(0).max(100).describe("Overall score from 0-100"),
   categoryScores: z
     .array(
       z.object({
-        name: z.string().describe("Tên kỹ năng"),
-        score: z.number().min(0).max(100).describe("Điểm từ 0-100"),
-        comment: z.string().describe("Nhận xét chi tiết"),
+        name: z.string().describe("Skill name"),
+        score: z.number().min(0).max(100).describe("Overall score from 0-100"),
+        comment: z.string().describe("Detailed comments"),
       })
     )
-    .describe("Điểm chi tiết cho từng kỹ năng"),
+    .describe("Detailed scores for each skill"),
   strengths: z
     .array(z.string())
-    .describe("Các điểm mạnh của người học (tiếng Việt)"),
+    .describe("Learner Strengths (Vietnamese)"),
   areasForImprovement: z
     .array(z.string())
-    .describe("Các điểm cần cải thiện (tiếng Việt)"),
-  finalAssessment: z.string().describe("Đánh giá tổng thể bằng tiếng Việt"),
+    .describe("Points for improvement (Vietnamese)"),
+  finalAssessment: z.string().describe("Overall rating"),
   vocabularySuggestions: z
     .array(
       z.object({
-        word: z.string().describe("Từ tiếng Việt"),
-        meaning: z.string().describe("Nghĩa tiếng Anh"),
-        example: z.string().describe("Câu ví dụ tiếng Việt"),
+        word: z.string().describe("Vietnamese word"),
+        meaning: z.string().describe("English meaning"),
+        example: z.string().describe("Vietnamese example sentence"),
       })
     )
-    .describe("Danh sách từ vựng nên học thêm"),
+    .describe("List of vocabulary to learn"),
   grammarNotes: z
     .array(z.string())
-    .describe("Lưu ý về ngữ pháp tiếng Việt (tiếng Việt)"),
+    .describe("Grammar notes (Vietnamese)"),
   pronunciationTips: z
     .array(z.string())
-    .describe("Gợi ý cải thiện phát âm (tiếng Việt)"),
+    .describe("Suggestions for improving pronunciation (Vietnamese)"),
 });
 
 export async function createFeedback(
@@ -309,50 +395,69 @@ export async function createFeedback(
 
     // Format transcript for AI
     const formattedTranscript = params.transcript
-      .map((msg) => `- ${msg.role === "user" ? "Học sinh" : "AI"}: ${msg.content}`)
+      .map((msg) => `- ${msg.role === "user" ? "Student" : "AI"}: ${msg.content}`)
       .join("\n");
+
+    // Determine feedback language (default to Vietnamese for exams)
+    const feedbackLanguage = params.feedbackLanguage || 'vietnamese';
+
+    // Language-specific instructions
+    const languageInstructions: Record<string, string> = {
+      vietnamese: "Use Vietnamese for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      english: "Use English for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      chinese: "Use Chinese (Simplified Chinese) for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      korean: "Use Korean for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      japanese: "Use Japanese for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      french: "Use French for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      german: "Use German for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      italian: "Use Italian for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      portuguese: "Use Portuguese for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      russian: "Use Russian for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      spanish: "Use Spanish for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      thai: "Use Thai for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+      turkish: "Use Turkish for all comments, strengths, areas for improvement, grammar notes, and pronunciation tips.",
+    };
 
     // Generate feedback using Gemini AI
     const { object } = await generateObject({
-      model: google("gemini-2.0-flash-001", {
+      model: google("gemini-2.5-flash", {
         structuredOutputs: false,
       }),
       schema: feedbackSchema,
       prompt: `
-        Bạn là một giáo viên tiếng Việt chuyên nghiệp. Nhiệm vụ của bạn là đánh giá kỹ năng tiếng Việt của học sinh dựa trên cuộc hội thoại sau.
+You are a professional Vietnamese teacher. Your task is to assess your students' Vietnamese skills based on the following conversation.
 
-        **Cuộc hội thoại:**
+**Conversation:**
         ${formattedTranscript}
+**Assessment requirements:**
 
-        **Yêu cầu đánh giá:**
+1. Score from 0-100 for the following skills (CORRECT NAME):
+- **Pronunciation**: Accuracy of pronunciation, tone
+- **Grammar**: Sentence structure, Vietnamese grammar
+- **Vocabulary**: Richness and accuracy of vocabulary
+- **Communication**: Ability to convey ideas
+- **Fluency**: Naturalness and coherence when speaking
 
-        1. Chấm điểm từ 0-100 cho các kỹ năng sau (ĐÚNG TÊN):
-           - **Phát âm (Pronunciation)**: Độ chính xác phát âm, thanh điệu
-           - **Ngữ pháp (Grammar)**: Cấu trúc câu, ngữ pháp tiếng Việt
-           - **Từ vựng (Vocabulary)**: Độ phong phú và chính xác của từ vựng
-           - **Giao tiếp (Communication)**: Khả năng truyền đạt ý tưởng
-           - **Độ trôi chảy (Fluency)**: Độ tự nhiên và mạch lạc khi nói
+2. List 3-5 strengths of the student
 
-        2. Liệt kê 3-5 điểm mạnh của học sinh
+3. List 3-5 areas for improvement
 
-        3. Liệt kê 3-5 điểm cần cải thiện
+4. Give an overall assessment (2-3 sentences)
 
-        4. Đưa ra đánh giá tổng thể (2-3 câu)
+5. Suggest 5-8 useful vocabulary related to the conversation (Vietnamese word with meaning in the feedback language and examples)
 
-        5. Gợi ý 5-8 từ vựng hữu ích liên quan đến cuộc trò chuyện (với nghĩa tiếng Anh và ví dụ)
+6. Give 2-4 important grammar notes
 
-        6. Đưa ra 2-4 lưu ý ngữ pháp quan trọng
+7. Give 2-4 Suggestions for improving pronunciation
 
-        7. Đưa ra 2-4 gợi ý cải thiện phát âm
-
-        **Lưu ý quan trọng:**
-        - Đánh giá công bằng, không quá dễ dãi
-        - Sử dụng tiếng Việt cho tất cả nhận xét
-        - Cụ thể, có ví dụ từ cuộc hội thoại
-        - Khuyến khích nhưng cũng chỉ ra lỗi rõ ràng
-      `,
-      system:
-        "Bạn là giáo viên tiếng Việt nhiều kinh nghiệm, chuyên đánh giá kỹ năng ngôn ngữ của người học nước ngoài.",
+**Important notes:**
+- Be fair, don't be too lenient
+- ${languageInstructions[feedbackLanguage]}
+- Be specific, with examples from conversations
+- Encourage but also point out obvious errors
+- For vocabulary suggestions, the 'word' field should be in Vietnamese, the 'meaning' field should be in ${feedbackLanguage}, and the 'example' field should be a Vietnamese sentence
+`,
+      system: "You are an experienced Vietnamese teacher, specializing in assessing the language skills of foreign learners."
     });
 
     const processingTime = Date.now() - startTime;
@@ -491,6 +596,57 @@ export async function initializeUserStats(userId: string): Promise<ApiResponse> 
     return {
       success: false,
       error: "Failed to initialize user stats",
+    };
+  }
+
+  return { success: true };
+}
+
+// =====================================================
+// DELETE CONVERSATION
+// =====================================================
+
+export async function deleteConversation(
+  conversationId: string
+): Promise<ApiResponse> {
+  const supabase = await createClient();
+
+  // Get current user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      success: false,
+      error: "Unauthorized: Please login to continue",
+    };
+  }
+
+  // Delete related transcripts first (if exists)
+  await supabase
+    .from("voice_transcripts")
+    .delete()
+    .eq("conversation_id", conversationId);
+
+  // Delete related feedback (if exists)
+  await supabase
+    .from("voice_feedback")
+    .delete()
+    .eq("conversation_id", conversationId);
+
+  // Delete the conversation
+  const { error } = await supabase
+    .from("voice_conversations")
+    .delete()
+    .eq("id", conversationId)
+    .eq("user_id", user.id); // Ensure user owns the conversation
+
+  if (error) {
+    console.error("Error deleting conversation:", error);
+    return {
+      success: false,
+      error: "Failed to delete conversation",
     };
   }
 

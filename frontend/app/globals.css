@@ -4,6 +4,39 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Design System Colors */
+  --color-ds-primary: var(--ds-primary);
+  --color-ds-primary-hover: var(--ds-primary-hover);
+  --color-ds-primary-active: var(--ds-primary-active);
+  --color-ds-primary-light: var(--ds-primary-light);
+  --color-ds-primary-foreground: var(--ds-primary-foreground);
+
+  --color-ds-secondary: var(--ds-secondary);
+  --color-ds-secondary-hover: var(--ds-secondary-hover);
+  --color-ds-secondary-active: var(--ds-secondary-active);
+  --color-ds-secondary-light: var(--ds-secondary-light);
+  --color-ds-secondary-foreground: var(--ds-secondary-foreground);
+
+  --color-ds-accent: var(--ds-accent);
+  --color-ds-accent-hover: var(--ds-accent-hover);
+  --color-ds-accent-active: var(--ds-accent-active);
+  --color-ds-accent-light: var(--ds-accent-light);
+  --color-ds-accent-foreground: var(--ds-accent-foreground);
+
+  --color-ds-success: var(--ds-success);
+  --color-ds-error: var(--ds-error);
+  --color-ds-error-active: var(--ds-error-active);
+  --color-ds-warning: var(--ds-warning);
+  --color-ds-info: var(--ds-info);
+
+  /* Design System Fonts */
+  --font-display: var(--font-baloo);
+  --font-title: var(--font-mitr);
+  --font-body: var(--font-quicksand);
+  --font-ui: var(--font-lexend);
+  --font-button: var(--font-varela);
+
+  /* Shadcn/UI Compatibility */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -44,6 +77,51 @@
 }
 
 :root {
+  /* ============================================= */
+  /* DESIGN SYSTEM COLORS - Duolingo Inspired     */
+  /* ============================================= */
+
+  /* Primary - Vibrant Pink */
+  --ds-primary: #f40076;
+  --ds-primary-hover: #ff1a8a;
+  --ds-primary-active: #d1006a;
+  --ds-primary-light: #ff3399;
+  --ds-primary-foreground: #ffffff;
+
+  /* Secondary - Purple */
+  --ds-secondary: #B880FF;
+  --ds-secondary-hover: #c799ff;
+  --ds-secondary-active: #9966e6;
+  --ds-secondary-light: #e6d9ff;
+  --ds-secondary-foreground: #ffffff;
+
+  /* Accent - Golden Yellow */
+  --ds-accent: #F9C449;
+  --ds-accent-hover: #fad066;
+  --ds-accent-active: #e0ac30;
+  --ds-accent-light: #fef3d9;
+  --ds-accent-foreground: #1f2937;
+
+  /* Semantic Colors */
+  --ds-success: #58cc02;
+  --ds-success-light: #d7ffb8;
+  --ds-error: #ff4b4b;
+  --ds-error-active: #e63c3c;
+  --ds-warning: #F9C449;
+  --ds-info: #1cb0f6;
+
+  /* Neutral Colors */
+  --ds-background: #ffffff;
+  --ds-foreground: #3c3c3c;
+  --ds-surface: #f7f7f7;
+  --ds-border: #e5e5e5;
+  --ds-text: #3c3c3c;
+  --ds-text-light: #777777;
+  --ds-text-lighter: #afafaf;
+
+  /* ============================================= */
+  /* SHADCN/UI COMPATIBILITY (mapped to DS colors) */
+  /* ============================================= */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -210,4 +288,180 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* ============================================= */
+/* VOICE CHAT / SPEAKING ROOM STYLES */
+/* ============================================= */
+
+/* Voice Status Indicator - Waveform Animation */
+.waveform {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  height: 24px;
+}
+
+.waveform-bar {
+  width: 3px;
+  background: currentColor;
+  border-radius: 2px;
+  animation: waveform 0.8s ease-in-out infinite;
+}
+
+.waveform-bar:nth-child(1) { animation-delay: 0s; }
+.waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+.waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+.waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+.waveform-bar:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes waveform {
+  0%, 100% { height: 4px; }
+  50% { height: 20px; }
+}
+
+/* Microphone Status - Volume Bar */
+.volume-bar {
+  width: 100%;
+  height: 4px;
+  background: rgb(229 231 235);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.volume-bar-fill {
+  height: 100%;
+  transition: width 0.05s ease-out;
+  background: linear-gradient(to right, #10b981, #f59e0b, #ef4444);
+}
+
+/* Call Timer */
+.call-timer {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(4px);
+  z-index: 50;
+}
+
+/* Transcript Panel */
+.transcript-panel {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+.transcript-message {
+  display: flex;
+  margin-bottom: 0.75rem;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.transcript-message.user {
+  justify-content: flex-end;
+}
+
+.transcript-bubble {
+  max-width: 70%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.transcript-bubble.user {
+  background: #3b82f6;
+  color: white;
+}
+
+.transcript-bubble.assistant {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Feedback Prompt Section */
+.feedback-prompt-section {
+  margin-top: 2rem;
+  padding: 2rem;
+  border: 2px solid #10b981;
+  border-radius: 0.75rem;
+  background: #f0fdf4;
+  text-align: center;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+/* Call View & Cards */
+.call-view {
+  @apply flex flex-col gap-6 items-center;
+}
+
+.card-interviewer {
+  @apply relative bg-white rounded-xl shadow-lg p-6 border-2 border-blue-200 transition-all duration-300 flex flex-col items-center gap-4 w-full max-w-md;
+}
+
+.card-border {
+  @apply relative bg-white rounded-xl shadow-md p-6 border border-gray-200 transition-all duration-300 flex flex-col items-center gap-4 w-full max-w-md;
+}
+
+.card-content {
+  @apply flex flex-col items-center gap-2 text-center;
+}
+
+/* Speaking Animation for Avatar */
+.animate-speak {
+  @apply absolute -inset-1 bg-blue-400 rounded-full opacity-75 animate-ping;
+}
+
+/* Transcript Display */
+.transcript-border {
+  @apply mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[100px];
+}
+
+.transcript {
+  @apply text-gray-700 text-sm leading-relaxed;
+}
+
+/* Call Buttons */
+.btn-call {
+  @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-disconnect {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200;
+}
+
+/* Loading Spinner for Call States */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

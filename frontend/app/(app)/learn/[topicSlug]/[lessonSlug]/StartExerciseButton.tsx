@@ -68,7 +68,9 @@ export function StartExerciseButton({
     <Button
       onClick={handleStartExercise}
       disabled={isCreatingSession}
-      className="w-full bg-[#067BC2] hover:bg-[#055a9f] mt-6"
+      variant="default"
+      size="lg"
+      className="w-full mt-6"
     >
       {isCreatingSession ? (
         <>

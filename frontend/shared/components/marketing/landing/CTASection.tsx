@@ -33,19 +33,23 @@ const CTASection = ({
   return (
     <section className="py-32">
       <div className="container">
-        <div className="flex flex-col items-center rounded-lg bg-accent p-8 text-center md:rounded-xl lg:p-16">
-          <h3 className="mb-3 max-w-3xl text-2xl font-semibold md:mb-4 md:text-4xl lg:mb-6">{heading}</h3>
-          <p className="mb-8 max-w-3xl text-muted-foreground lg:text-lg">{description}</p>
-          <div className="flex w-full flex-col justify-center gap-2 sm:flex-row">
-            {buttons.secondary && (
-              <Button variant="outline" className="w-full sm:w-auto">
-                <Link href={buttons.secondary.url}>{buttons.secondary.text}</Link>
-              </Button>
-            )}
+        <div className="flex flex-col items-center rounded-3xl bg-gradient-to-br from-ds-primary/10 to-ds-secondary/10 p-8 text-center md:rounded-3xl lg:p-16 border-2 border-dashed border-ds-primary/30">
+          <h3 className="mb-3 max-w-3xl text-2xl font-display font-bold text-ds-text md:mb-4 md:text-4xl lg:mb-6">{heading}</h3>
+          <p className="mb-8 max-w-3xl font-body text-ds-text-light leading-relaxed lg:text-lg">{description}</p>
+          <div className="flex w-full flex-col justify-center gap-4 sm:flex-row">
             {buttons.primary && (
-              <Button className="w-full sm:w-auto bg-[#067BC2] hover:bg-[#0569a6]">
-                <Link href={buttons.primary.url}>{buttons.primary.text}</Link>
-              </Button>
+              <Link href={buttons.primary.url}>
+                <Button size="lg" className="w-full sm:w-auto">
+                  {buttons.primary.text}
+                </Button>
+              </Link>
+            )}
+            {buttons.secondary && (
+              <Link href={buttons.secondary.url}>
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  {buttons.secondary.text}
+                </Button>
+              </Link>
             )}
           </div>
         </div>
