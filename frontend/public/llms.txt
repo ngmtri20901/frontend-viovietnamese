@@ -1,0 +1,44 @@
+# VioVietnamese
+
+> A comprehensive Vietnamese language learning platform featuring interactive flashcards, AI-powered voice practice, structured lessons, and personalized learning paths to help learners master Vietnamese effectively.
+
+VioVietnamese is a modern web application built with Next.js, React, and TypeScript. It provides an immersive learning experience through flashcards, voice practice with AI, structured lessons organized by topics, and comprehensive learning statistics.
+
+## Documentation
+
+- [Next.js Documentation](https://nextjs.org/docs): Complete guide to Next.js framework features and API
+- [React Documentation](https://react.dev): Official React documentation and guides
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/): TypeScript language reference and handbook
+- [Supabase Documentation](https://supabase.com/docs): Backend-as-a-Service platform documentation for authentication and database
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs): Utility-first CSS framework documentation
+
+## Architecture
+
+- [Project Structure](https://github.com/ngmtri20901/frontend-viovietnamese): Monorepo structure with frontend application in `/frontend` directory
+- [App Router](https://nextjs.org/docs/app): Next.js App Router implementation with route groups `(public)` and `(app)`
+- [Feature Modules](https://github.com/ngmtri20901/frontend-viovietnamese/tree/main/frontend/features): Organized feature modules including flashcards, AI voice, and learning modules
+- [Shared Components](https://github.com/ngmtri20901/frontend-viovietnamese/tree/main/frontend/shared): Reusable UI components, utilities, and layout components
+
+## Features
+
+- [Flashcards System](https://github.com/ngmtri20901/frontend-viovietnamese/tree/main/frontend/features/flashcards): Interactive flashcard creation, review sessions, spaced repetition, and statistics tracking
+- [AI Voice Practice](https://github.com/ngmtri20901/frontend-viovietnamese/tree/main/frontend/app/(app)/ai/voice): AI-powered voice examination and speaking practice with feedback
+- [Learning Modules](https://github.com/ngmtri20901/frontend-viovietnamese/tree/main/frontend/app/(app)/learn): Structured lessons organized by topics with exercises
+- [AI Chat](https://github.com/ngmtri20901/frontend-viovietnamese/tree/main/frontend/app/(app)/ai/chat): Conversational AI assistant for language learning support
+
+
+## UI Components
+
+- [Radix UI Components](https://www.radix-ui.com/docs): Accessible component primitives used throughout the application
+- [Lucide Icons](https://lucide.dev): Icon library for consistent iconography
+- [Tailwind CSS](https://tailwindcss.com): Utility-first CSS for styling
+
+## Routes
+
+- Public Routes: `/`, `/plans`, `/blog`, `/contact`
+- Authentication: `/auth/login`, `/auth/sign-up`, `/auth/forgot-password`
+- Learning: `/learn`, `/learn/[topicSlug]`, `/learn/[topicSlug]/[lessonSlug]`
+- Flashcards: `/flashcards`, `/flashcards/topic/[topicID]`, `/flashcards/review`, `/flashcards/create`
+- AI Features: `/ai/voice`, `/ai/voice/speak`, `/ai/voice/exam`, `/ai/chat`
+- Shop: `/shop`
+

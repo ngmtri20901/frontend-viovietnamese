@@ -10,10 +10,8 @@ import { createClient, isSupabaseConfigured } from "@/shared/lib/supabase/client
 
 const navLinks = [
   { name: "Home", href: "/" },
-  { name: "Features", href: "/features" },
   { name: "Plans", href: "/plans" },
   { name: "Blog", href: "/blog" },
-  { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ]
 

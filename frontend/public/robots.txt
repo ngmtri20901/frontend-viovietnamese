@@ -1,0 +1,21 @@
+# robots.txt for Vietnamese Language Learning Platform
+
+User-agent: *
+Allow: /
+Disallow: /auth/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /learn/
+Disallow: /flashcards/
+Disallow: /ai/
+Disallow: /shop/
+
+# Allow public pages
+Allow: /
+Allow: /plans
+Allow: /blog
+Allow: /contact
+
+# Sitemap location
+Sitemap: https://viovietnamese.com/sitemap.xml
+
