@@ -97,16 +97,24 @@ export interface SavedFlashcardsData {
 }
 
 /**
- * Fetch APP flashcard details from FastAPI
+ * Fetch APP flashcard details from FastAPI with fallback support
  */
 async function getAppFlashcardDetails(flashcardIds: string[]): Promise<AppFlashcardDetail[]> {
   if (flashcardIds.length === 0) return []
 
-  try {
-    console.log('🌐 [Server] Fetching APP flashcard details from FastAPI for', flashcardIds.length, 'flashcards')
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  const API_FALLBACK_URL = process.env.NEXT_PUBLIC_API_FALLBACK_URL || null
+  const API_PREFIX = '/api/v1'
+  const endpoint = '/flashcards/by-ids'
 
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-    const response = await fetch(`${API_BASE_URL}/api/v1/flashcards/by-ids`, {
+  // Helper function to attempt fetch with a specific base URL
+  const attemptFetch = async (baseUrl: string, isFallback: boolean): Promise<AppFlashcardDetail[]> => {
+    const url = `${baseUrl}${API_PREFIX}${endpoint}`
+    const urlType = isFallback ? 'fallback' : 'primary'
+    
+    console.log(`🌐 [Server] Attempting ${urlType} URL: ${url}`)
+    
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -117,11 +125,16 @@ async function getAppFlashcardDetails(flashcardIds: string[]): Promise<AppFlashc
     })
 
     if (!response.ok) {
-      throw new Error(`FastAPI request failed: ${response.statusText}`)
+      // For 5xx errors, throw to trigger fallback
+      if (response.status >= 500 && response.status < 600) {
+        throw new Error(`FastAPI request failed: ${response.status} ${response.statusText}`)
+      }
+      // For 4xx errors, don't fallback (client errors)
+      throw new Error(`FastAPI request failed: ${response.status} ${response.statusText}`)
     }
 
     const data = await response.json()
-    console.log('✅ [Server] Successfully fetched APP flashcard details:', Array.isArray(data) ? data.length : 'not array')
+    console.log(`✅ [Server] Successfully fetched APP flashcard details from ${urlType} URL:`, Array.isArray(data) ? data.length : 'not array')
 
     // Ensure we return an array
     if (!Array.isArray(data)) {
@@ -130,9 +143,34 @@ async function getAppFlashcardDetails(flashcardIds: string[]): Promise<AppFlashc
     }
 
     return data
+  }
+
+  // Try primary URL first
+  try {
+    return await attemptFetch(API_BASE_URL, false)
   } catch (error) {
-    console.error('❌ [Server] Error fetching APP flashcard details:', error)
-    return [] // Return empty array to continue with placeholder data
+    console.error('❌ [Server] Primary URL failed:', error)
+    
+    // Check if we should use fallback (network errors, timeouts, or 5xx errors)
+    const shouldFallback = 
+      error instanceof TypeError || 
+      error instanceof DOMException ||
+      (error instanceof Error && (error.name === 'AbortError' || error.message.includes('500')))
+    
+    // Try fallback URL if configured and error warrants it
+    if (API_FALLBACK_URL && shouldFallback) {
+      console.warn('⚠️ [Server] Attempting fallback URL...')
+      try {
+        return await attemptFetch(API_FALLBACK_URL, true)
+      } catch (fallbackError) {
+        console.error('❌ [Server] Fallback URL also failed:', fallbackError)
+        // Return empty array to continue with placeholder data
+        return []
+      }
+    }
+    
+    // Return empty array to continue with placeholder data
+    return []
   }
 }
 

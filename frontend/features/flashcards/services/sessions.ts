@@ -9,6 +9,7 @@ import type {
   SessionGenerationResponse,
   SuggestionOption,
 } from '../types/session.types'
+import { fetchWithFallback } from '../utils/apiClient'
 
 // Re-export types for backward compatibility
 export type {
@@ -20,12 +21,6 @@ export type {
 }
 
 class SessionAPI {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  }
-
   /**
    * Validate session filters and get availability information
    * @param filters - Session filter criteria
@@ -33,12 +28,12 @@ class SessionAPI {
    */
   async validateSessionFilters(filters: SessionFilterRequest, userId?: string): Promise<SessionValidationResponse> {
     try {
-      const requestBody: any = { ...filters }
+      const requestBody: SessionFilterRequest & { user_id?: string } = { ...filters }
       if (userId) {
         requestBody.user_id = userId
       }
       
-      const response = await fetch(`${this.baseUrl}/api/v1/flashcards/session/validate`, {
+      const { response } = await fetchWithFallback('/flashcards/session/validate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +58,7 @@ class SessionAPI {
    */
   async generateSessionCards(request: SessionGenerationRequest): Promise<SessionGenerationResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/v1/flashcards/session/generate`, {
+      const { response } = await fetchWithFallback('/flashcards/session/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

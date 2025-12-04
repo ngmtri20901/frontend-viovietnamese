@@ -14,6 +14,7 @@ import { FlashcardPreviewClient } from './FlashcardPreviewClient'
 import { createFlashcard, uploadFlashcardImage } from '@/features/flashcards/actions/create'
 import { updateCustomFlashcard } from '@/features/flashcards/actions/manage'
 import { createClient } from '@/shared/lib/supabase/client'
+import { fetchWithFallback } from '@/features/flashcards/utils/apiClient'
 
 interface FlashcardData {
   vietnamese: string
@@ -183,12 +184,7 @@ export default function CreateFlashcardForm({
     console.log('🔊 Fetching IPA pronunciation...')
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL
-      if (!apiUrl) {
-        throw new Error('API URL is not configured')
-      }
-
-      const response = await fetch(`${apiUrl}/api/v1/phoneme/ipa`, {
+      const { response, usedFallback } = await fetchWithFallback('/phoneme/ipa', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -204,6 +200,9 @@ export default function CreateFlashcardForm({
 
       const data = await response.json()
       console.log('✅ IPA pronunciation received:', data)
+      if (usedFallback) {
+        console.log('⚠️ IPA fetched from fallback URL')
+      }
 
       const ipa = data.ipa || data.pronunciation || data.text || ''
       
