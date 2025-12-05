@@ -23,12 +23,12 @@ export default async function BlogSection() {
   }
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-16 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 space-y-4">
           <p className="font-ui text-sm font-medium text-ds-text-light uppercase tracking-wide">Articles</p>
-          <h2 className="font-display text-4xl font-bold text-ds-text">Learn more about Vietnamese</h2>
+          <h2 className="font-display text-ds-primary text-4xl font-bold">Learn more about Vietnamese</h2>
           <p className="font-body text-ds-text-light max-w-2xl mx-auto leading-relaxed">
             Explore our blog for insightful articles, language tips, and cultural insights to enhance your Vietnamese
             learning journey.
@@ -73,7 +73,7 @@ export default async function BlogSection() {
                     )}
                   </div>
                   <div className="flex-1 space-y-3">
-                    <h3 className="font-title text-xl font-semibold text-ds-text group-hover:text-ds-primary transition-colors">
+                    <h3 className="font-title text-xl font-semibold text-gray-800 group-hover:text-ds-primary transition-colors">
                       {post.title}
                     </h3>
                     <time className="font-body text-sm text-ds-text-lighter">

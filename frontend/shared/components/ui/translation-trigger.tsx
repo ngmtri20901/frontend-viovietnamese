@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Languages } from "lucide-react"
+import { BookA } from "lucide-react"
 import { Button } from "@/shared/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover"
@@ -57,7 +57,7 @@ export function TranslationTrigger({
       )}
       aria-label="Show translation"
     >
-      <Languages className={cn("h-4 w-4", iconClassName)} />
+      <BookA className={cn("h-4 w-4", iconClassName)} />
     </Button>
   )
 

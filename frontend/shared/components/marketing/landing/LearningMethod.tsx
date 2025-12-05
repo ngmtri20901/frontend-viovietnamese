@@ -22,7 +22,7 @@ export const LearningMethod: React.FC<LearningMethodProps> = ({ image, altText, 
       </div>
       <div className="flex flex-col max-w-[520px]">
         <h3 className="font-title text-neutral-600 text-[40px] font-semibold mb-6 max-md:text-[32px] max-sm:text-[28px]">{title}</h3>
-        <p className="font-body text-ds-text-light text-xl leading-relaxed max-md:text-lg max-sm:text-base">{description}</p>
+        <p className="font-body text-gray-600 text-xl leading-relaxed max-md:text-lg max-sm:text-base">{description}</p>
       </div>
     </article>
   )

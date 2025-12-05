@@ -26,12 +26,12 @@ const CTASection = ({
     },
     secondary: {
       text: "Learn More",
-      url: "/features",
+      url: "/plans",
     },
   },
 }: CTAProps) => {
   return (
-    <section className="py-32">
+    <section className="py-24">
       <div className="container">
         <div className="flex flex-col items-center rounded-3xl bg-gradient-to-br from-ds-primary/10 to-ds-secondary/10 p-8 text-center md:rounded-3xl lg:p-16 border-2 border-dashed border-ds-primary/30">
           <h3 className="mb-3 max-w-3xl text-2xl font-display font-bold text-ds-text md:mb-4 md:text-4xl lg:mb-6">{heading}</h3>

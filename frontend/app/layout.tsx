@@ -1,49 +1,206 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Baloo_2, Mitr, Varela_Round, Quicksand, Lexend } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "@/shared/components/providers";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: [
+    {
+      path: "../public/fonts/geist/Geist-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/geist/Geist-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/geist/Geist-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/geist/Geist-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: [
+    {
+      path: "../public/fonts/geist-mono/GeistMono-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/geist-mono/GeistMono-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/geist-mono/GeistMono-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+  ],
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 // Duolingo-inspired fonts for Vietnamese
-const baloo = Baloo_2({
-  subsets: ['vietnamese', 'latin'],
-  variable: '--font-baloo',
-  display: 'swap',
+const baloo = localFont({
+  src: [
+    {
+      path: "../public/fonts/baloo/Baloo2-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/baloo/Baloo2-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/baloo/Baloo2-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/baloo/Baloo2-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/baloo/Baloo2-ExtraBold.ttf",
+      weight: "800",
+      style: "normal",
+    },
+  ],
+  variable: "--font-baloo",
+  display: "swap",
 });
 
-const mitr = Mitr({
-  weight: ['400', '500', '600'],
-  subsets: ['vietnamese', 'latin'],
-  variable: '--font-mitr',
-  display: 'swap',
+const mitr = localFont({
+  src: [
+    {
+      path: "../public/fonts/mitr/Mitr-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/mitr/Mitr-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/mitr/Mitr-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+  ],
+  variable: "--font-mitr",
+  display: "swap",
 });
 
-const varela = Varela_Round({
-  weight: ['400'],
-  subsets: ['vietnamese', 'latin'],
-  variable: '--font-varela',
-  display: 'swap',
+const varela = localFont({
+  src: [
+    {
+      path: "../public/fonts/varela/VarelaRound-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-varela",
+  display: "swap",
 });
 
-const quicksand = Quicksand({
-  subsets: ['vietnamese', 'latin'],
-  variable: '--font-quicksand',
-  display: 'swap',
+const quicksand = localFont({
+  src: [
+    {
+      path: "../public/fonts/quicksand/Quicksand-Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/quicksand/Quicksand-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/quicksand/Quicksand-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/quicksand/Quicksand-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/quicksand/Quicksand-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-quicksand",
+  display: "swap",
 });
 
-const lexend = Lexend({
-  subsets: ['vietnamese', 'latin'],
-  variable: '--font-lexend',
-  display: 'swap',
+const lexend = localFont({
+  src: [
+    {
+      path: "../public/fonts/lexend/Lexend-Thin.ttf",
+      weight: "100",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/lexend/Lexend-ExtraLight.ttf",
+      weight: "200",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/lexend/Lexend-Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/lexend/Lexend-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/lexend/Lexend-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/lexend/Lexend-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/lexend/Lexend-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/lexend/Lexend-ExtraBold.ttf",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/lexend/Lexend-Black.ttf",
+      weight: "900",
+      style: "normal",
+    },
+  ],
+  variable: "--font-lexend",
+  display: "swap",
 });
 
 export const metadata: Metadata = {

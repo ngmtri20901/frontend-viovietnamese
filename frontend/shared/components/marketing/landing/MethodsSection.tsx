@@ -25,7 +25,7 @@ export const MethodsSection: React.FC = () => {
     common_meaning: "Hello",
     is_multimeaning: false,
     is_common: true,
-    pronunciation: "sin t͡ɕàːw",
+    pronunciation: "sin˧ caw˨",
     flashcard_type: "APP" as const
   }
 
@@ -40,11 +40,11 @@ export const MethodsSection: React.FC = () => {
 
   return (
     <>
-      <section className="text-center mb-20">
+      <section id="methods" className="text-center mb-20">
         <h2 className="font-display text-ds-primary text-5xl font-bold mb-6 max-md:text-[40px] max-sm:text-[32px]">
           Our Methods of Learning
         </h2>
-        <p className="font-body text-ds-text-light text-2xl max-w-[866px] mx-auto leading-relaxed max-md:text-xl max-sm:text-lg">
+        <p className="font-body text-gray-600 text-2xl max-w-[866px] mx-auto leading-relaxed max-md:text-xl max-sm:text-lg">
           We combine theory, practice, and interaction to make learning Vietnamese easy and engaging. Master Vietnamese
           with our proven methods!
         </p>
@@ -56,9 +56,7 @@ export const MethodsSection: React.FC = () => {
           title="Learn Vocabulary"
           description={
             <>
-              Boost your vocabulary with our interactive flashcards featuring vivid images. Science proves that{" "}
-              <span className="underline font-semibold">learning with visuals</span> enhances memory and recall better than
-              traditional methods!
+              Learn new words faster with our interactive flashcards. Visual learning keeps vocabulary in your memory longer — and makes studying more fun.
             </>
           }
         >
@@ -93,7 +91,7 @@ export const MethodsSection: React.FC = () => {
             <div className="flex flex-col items-center gap-6">
               {/* AI Avatar with speech bubble */}
               <div className="relative">
-                <div className="w-32 h-32 bg-gradient-to-br from-ds-secondary to-ds-primary rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-32 h-32 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center shadow-lg">
                   <div className="text-6xl">🤖</div>
                 </div>
 
@@ -101,7 +99,7 @@ export const MethodsSection: React.FC = () => {
                 <div className="absolute -top-2 -right-2 animate-bounce">
                   <div className="relative bg-white rounded-2xl p-4 shadow-lg border-2 border-ds-accent">
                     <p className="font-body text-sm text-ds-text font-medium whitespace-nowrap">
-                      {micActive ? "I'm listening..." : "Click to start!"}
+                      {micActive ? "Click to start!" : "I'm listening..."}
                     </p>
                     {/* Speech bubble tail */}
                     <div className="absolute -bottom-2 left-8 w-4 h-4 bg-white border-r-2 border-b-2 border-ds-accent transform rotate-45"></div>

@@ -42,8 +42,24 @@ export function WordsMatching({ pairs, onComplete, controlled = false, onAnswerC
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Shuffle the Vietnamese words once on mount, but keep the order fixed
+  // Use a stable seed based on pairs to ensure consistent shuffling between server and client
   const shuffledIndices = useMemo(() => {
-    return [...pairs.map((_, i) => i)].sort(() => Math.random() - 0.5)
+    // Create a stable seed from pairs data
+    const seed = pairs.reduce((acc, pair) => acc + pair.id + pair.english.length + pair.vietnamese.length, 0)
+    // Simple seeded shuffle function
+    const seededRandom = (seed: number) => {
+      const x = Math.sin(seed) * 10000
+      return x - Math.floor(x)
+    }
+    let currentSeed = seed
+    const indices = [...pairs.map((_, i) => i)]
+    // Fisher-Yates shuffle with seeded random
+    for (let i = indices.length - 1; i > 0; i--) {
+      currentSeed = (currentSeed * 9301 + 49297) % 233280
+      const j = Math.floor(seededRandom(currentSeed) * (i + 1))
+      ;[indices[i], indices[j]] = [indices[j], indices[i]]
+    }
+    return indices
   }, [pairs])
 
   // Get the shuffled Vietnamese words using the shuffled indices
@@ -208,10 +224,20 @@ export function WordsMatching({ pairs, onComplete, controlled = false, onAnswerC
       "Choose the pairs that match"
     ];
   }
+  
+  // Use a stable seed based on pairs to ensure consistent title selection between server and client
   const randomTitle = useMemo(() => {
     const titles = getWordMatchingTitles();
-    return titles[Math.floor(Math.random() * titles.length)];
-  }, []);
+    // Create a stable seed from pairs data
+    const seed = pairs.reduce((acc, pair) => acc + pair.id + pair.english.length + pair.vietnamese.length, 0)
+    // Simple seeded random function
+    const seededRandom = (seed: number) => {
+      const x = Math.sin(seed) * 10000
+      return x - Math.floor(x)
+    }
+    const index = Math.floor(seededRandom(seed) * titles.length);
+    return titles[index];
+  }, [pairs]);
 
   return (
     <div
